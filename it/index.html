@@ -1,0 +1,2518 @@
+<!DOCTYPE html>
+
+<html lang="it">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>YourAgent — assistente vocale smart per aziende</title>
+<meta content="YourAgent: Smarter Voice Assistant für Anrufe, Appuntamentoe, Leads und Kundenservice. 24/7 erreichbar, Conforme GDPR, individuell trainiert." name="description"/>
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link as="style" href="../assets/styles.css" rel="preload"/>
+<link href="../assets/styles.css" rel="stylesheet">
+<style>
+/* YA_DEMO_STYLES */
+.ya-demo{padding:92px 0 72px}
+.ya-demo__grid{max-width:1100px;margin:0 auto;padding:0 22px;display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start}
+@media (max-width: 920px){.ya-demo__grid{grid-template-columns:1fr;gap:18px} .ya-langbar{top:10px;right:10px}}
+.ya-kicker{font-weight:700;letter-spacing:.18em;text-transform:uppercase;font-size:12px;opacity:.75}
+.ya-muted{opacity:.78}
+.ya-demo h2{font-size:38px;line-height:1.1;margin:10px 0 10px}
+@media (max-width: 920px){.ya-demo h2{font-size:30px}}
+.ya-demo__controls{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 14px}
+.ya-pill{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;padding:10px 14px;border-radius:999px;font-weight:650;cursor:pointer}
+.ya-pill:hover{background:rgba(255,255,255,.10)}
+.ya-pill.is-active{background:rgba(255,255,255,.16)}
+.ya-demo__ctaRow{display:flex;gap:10px;margin:10px 0 10px;flex-wrap:wrap}
+.ya-btn{border-radius:14px;padding:12px 16px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff}
+.ya-btn--primary{background:linear-gradient(135deg, rgba(130,180,255,.95), rgba(150,110,255,.92));border-color:transparent}
+.ya-btn--ghost{background:transparent}
+.ya-btn:hover{filter:brightness(1.05)}
+.ya-card{border:1px solid rgba(255,255,255,.12);background:rgba(12,16,26,.62);border-radius:22px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.ya-card__top{padding:18px 18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.10)}
+.ya-orbWrap{position:relative;width:140px;height:140px;display:grid;place-items:center}
+.ya-orb{width:86px;height:86px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(140,190,255,.22) 40%, rgba(160,120,255,.12) 72%, rgba(0,0,0,0) 78%),
+             radial-gradient(circle at 60% 70%, rgba(130,180,255,.55), rgba(0,0,0,0) 62%);
+  border:1px solid rgba(255,255,255,.18);
+  transform:translateZ(0);
+}
+.ya-orbGlow{position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle, rgba(130,180,255,.28), rgba(160,120,255,.18) 55%, rgba(0,0,0,0) 72%);
+  filter: blur(14px);
+  opacity:.9;
+}
+.ya-wave{display:flex;gap:6px;height:22px;align-items:flex-end}
+.ya-wave span{width:6px;height:8px;border-radius:999px;background:rgba(255,255,255,.65);opacity:.55;transform-origin:bottom}
+.ya-wave.is-playing span{animation:yaWave 1.05s infinite ease-in-out}
+.ya-wave.is-playing span:nth-child(2){animation-delay:.08s}
+.ya-wave.is-playing span:nth-child(3){animation-delay:.16s}
+.ya-wave.is-playing span:nth-child(4){animation-delay:.24s}
+.ya-wave.is-playing span:nth-child(5){animation-delay:.32s}
+.ya-wave.is-playing span:nth-child(6){animation-delay:.40s}
+.ya-wave.is-playing span:nth-child(7){animation-delay:.48s}
+.ya-wave.is-playing span:nth-child(8){animation-delay:.56s}
+@keyframes yaWave{0%,100%{height:8px;opacity:.45}50%{height:22px;opacity:.92}}
+.ya-statusRow{display:flex;gap:10px;align-items:center;font-size:12px;opacity:.8}
+.ya-statusDot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);box-shadow:0 0 0 6px rgba(255,255,255,.06)}
+.ya-statusDot.on{background:rgba(120,255,200,.95);box-shadow:0 0 0 6px rgba(120,255,200,.14)}
+.ya-transcript{padding:16px;max-height:340px;overflow:auto}
+.ya-msg{display:flex;gap:10px;margin:10px 0}
+.ya-badge{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.65;min-width:64px}
+.ya-bubble{padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);max-width:520px}
+.ya-msg--user .ya-bubble{background:rgba(130,180,255,.12);border-color:rgba(130,180,255,.22)}
+.ya-demo__hint{font-size:12px;margin-top:10px}
+</style>
+<style>
+  .ya-langbar{
+    position:fixed; top:14px; right:14px; z-index:9999;
+    display:flex; gap:8px; padding:8px 10px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(9,12,18,.55); backdrop-filter:none !important;
+    border-radius:999px;
+  }
+  .ya-lang{
+    font:600 12px/1.1 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    letter-spacing:.06em; text-transform:uppercase;
+    color:rgba(255,255,255,.82); text-decoration:none;
+    padding:6px 8px; border-radius:999px;
+  }
+  .ya-lang:hover{ background: rgba(255,255,255,.10); color:#fff; }
+  .ya-lang.is-active{ background: rgba(255,255,255,.16); color:#fff; }
+</style>
+</link>
+<style>
+html{scroll-behavior:smooth}
+</style>
+
+  <meta property="og:title" content="YourAgent — Assistente vocale smart"/>
+  <meta property="og:description" content="Voice agent per chiamate, lead e prenotazioni. Live in 7–14 giorni."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:image" content="../assets/voice-ai.jpeg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+
+
+<style>
+/* YA_V9 */
+.ya-section{padding:72px 0}
+.ya-wrap{max-width:1100px;margin:0 auto;padding:0 22px}
+.ya-h2{font-size:34px;line-height:1.15;margin:0 0 14px}
+.ya-p{opacity:.80;margin:0 0 18px}
+@media(max-width:920px){.ya-h2{font-size:28px} .ya-section{padding:54px 0}}
+
+.ya-compare{border:1px solid rgba(255,255,255,.12);background:rgba(12,16,26,.55);border-radius:22px;overflow:hidden}
+.ya-compareHead,.ya-compareRow{display:grid;grid-template-columns:1fr 1fr}
+.ya-compareHead{padding:14px 16px;background:rgba(255,255,255,.06);font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:12px;opacity:.8}
+.ya-compareRow{padding:14px 16px;border-top:1px solid rgba(255,255,255,.10)}
+.ya-compareLeft{opacity:.78}
+.ya-compareRight{font-weight:700}
+
+.ya-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:920px){.ya-grid3{grid-template-columns:1fr}}
+.ya-miniCard{border:1px solid rgba(255,255,255,.12);background:rgba(12,16,26,.45);border-radius:18px;padding:16px}
+.ya-miniTitle{font-weight:850;margin-bottom:6px}
+.ya-miniText{opacity:.78;font-size:14px;line-height:1.4}
+
+.ya-chips{display:flex;flex-wrap:wrap;gap:10px}
+.ya-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);font-weight:700;opacity:.9}
+
+.ya-roiCard{border:1px solid rgba(255,255,255,.12);background:rgba(12,16,26,.55);border-radius:22px;padding:16px}
+.ya-roiGrid{display:grid;grid-template-columns:repeat(3,1fr) 1.2fr;gap:12px;align-items:end}
+@media(max-width:920px){.ya-roiGrid{grid-template-columns:1fr; } }
+.ya-field{display:flex;flex-direction:column;gap:8px;font-size:13px;opacity:.88}
+.ya-field input{border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;padding:12px 12px;font-weight:750;outline:none}
+.ya-field input:focus{border-color:rgba(160,120,255,.6);box-shadow:0 0 0 4px rgba(160,120,255,.15)}
+.ya-roiOut{border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);padding:12px}
+.ya-roiLabel{font-size:12px;letter-spacing:.10em;text-transform:uppercase;opacity:.75;margin-bottom:6px}
+.ya-roiNumber{font-size:15px;opacity:.9}
+.ya-roiNumber b{font-size:22px}
+.ya-roiNote{margin-top:10px;font-size:12px;opacity:.72}
+
+.ya-audit{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  border:1px solid rgba(255,255,255,.12);background:linear-gradient(135deg, rgba(130,180,255,.14), rgba(160,120,255,.10));
+  border-radius:22px;padding:18px}
+</style>
+
+
+<style>
+/* YA_BUILDER */
+.ya-builder{border:1px solid rgba(255,255,255,.12);background:rgba(12,16,26,.55);border-radius:22px;padding:18px}
+.ya-builderGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:920px){.ya-builderGrid{grid-template-columns:1fr}}
+.ya-select{width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;padding:12px 12px;font-weight:750;outline:none}
+.ya-checks{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.ya-check{display:flex;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);padding:10px 12px;border-radius:999px;font-weight:700;opacity:.9}
+.ya-check input{accent-color:#9cc3ff}
+.ya-out{margin-top:14px}
+.ya-textarea{width:100%;min-height:220px;resize:vertical;border-radius:18px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.25);color:#fff;padding:14px;font:600 13px/1.45 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.ya-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.ya-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(10,12,18,.75);border:1px solid rgba(255,255,255,.14);padding:10px 12px;border-radius:999px;backdrop-filter:none !important;opacity:0;pointer-events:none;transition:.22s}
+.ya-toast.on{opacity:1}
+</style>
+
+
+<style>
+/* YA_CALL_V14 */
+.ya-callGrid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;align-items:start}
+@media(max-width:920px){.ya-callGrid{grid-template-columns:1fr}}
+.ya-callPhone{border:1px solid rgba(255,255,255,.12);background:rgba(12,16,26,.62);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.ya-callTop{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04)}
+.ya-callTitle{font-weight:900;letter-spacing:.18em;text-transform:uppercase;font-size:12px;opacity:.85}
+.ya-callStatus{display:flex;gap:8px;align-items:center;font-size:12px;opacity:.85}
+.ya-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);box-shadow:0 0 0 6px rgba(255,255,255,.06)}
+.ya-dot.on{background:rgba(120,255,200,.95);box-shadow:0 0 0 6px rgba(120,255,200,.14)}
+.ya-callBody{padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.ya-callTranscript{width:100%;max-height:260px;overflow:auto;padding:10px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18)}
+.ya-line{display:flex;gap:10px;margin:10px 0}
+.ya-line .tag{min-width:64px;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;opacity:.65}
+.ya-line .bubble{padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06)}
+.ya-line.user .bubble{background:rgba(130,180,255,.12);border-color:rgba(130,180,255,.22)}
+.ya-callControls{padding:14px 16px;border-top:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03)}
+.ya-callSide{position:sticky;top:92px}
+</style>
+
+
+<style>
+/* YA_DASH_V16 */
+.ya-dashWrap{border:1px solid rgba(255,255,255,.12);background:rgba(12,16,26,.55);border-radius:22px;padding:18px}
+.ya-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+@media(max-width:920px){.ya-kpis{grid-template-columns:1fr 1fr}}
+.ya-kpi{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);border-radius:18px;padding:14px}
+.ya-kpiLabel{font-size:12px;letter-spacing:.10em;text-transform:uppercase;opacity:.72;margin-bottom:8px}
+.ya-kpiValue{font-size:28px;font-weight:900;line-height:1}
+.ya-kpiSub{margin-top:6px;font-size:12px;opacity:.72}
+.ya-dashGrid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:14px}
+@media(max-width:920px){.ya-dashGrid{grid-template-columns:1fr}}
+.ya-miniTable{width:100%;border-collapse:separate;border-spacing:0 10px}
+.ya-miniTable td{padding:10px 12px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.10)}
+.ya-miniTable td:first-child{border-radius:14px 0 0 14px}
+.ya-miniTable td:last-child{border-radius:0 14px 14px 0}
+.ya-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);font-weight:800;font-size:12px;opacity:.9}
+.ya-spark{height:56px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:flex-end;gap:4px;padding:10px}
+.ya-bar{flex:1;border-radius:10px 10px 0 0;background:rgba(160,120,255,.55)}
+.ya-dashActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+</style>
+
+
+<style>
+/* YA_V22 Industry Picker */
+.ya-industry-enhanced{display:grid;gap:10px}
+.ya-industry-trigger{
+  width:100%;display:flex;justify-content:space-between;align-items:center;
+  border-radius:14px;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);color:#fff;padding:12px 12px;font-weight:750;cursor:pointer;
+}
+.ya-industry-trigger:hover{background:rgba(255,255,255,.09)}
+.ya-industry-panel{
+  border:1px solid rgba(255,255,255,.12);background:rgba(12,16,26,.96);
+  border-radius:18px;padding:12px;display:none;gap:12px;box-shadow:0 24px 80px rgba(0,0,0,.45)
+}
+.ya-industry-panel.open{display:grid}
+.ya-search{
+  width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);color:#fff;padding:12px 12px;font-weight:700;outline:none
+}
+.ya-search:focus{border-color:rgba(160,120,255,.6);box-shadow:0 0 0 4px rgba(160,120,255,.14)}
+.ya-chipRow{display:flex;gap:8px;flex-wrap:wrap}
+.ya-chipBtn{
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;
+  padding:8px 10px;border-radius:999px;font-weight:800;font-size:12px;cursor:pointer
+}
+.ya-chipBtn.active{background:rgba(160,120,255,.22);border-color:rgba(160,120,255,.45)}
+.ya-optionList{
+  max-height:280px;overflow:auto;display:grid;gap:8px;padding-right:4px
+}
+.ya-optionBtn{
+  text-align:left;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);color:#fff;
+  padding:10px 12px;border-radius:12px;font-weight:700;cursor:pointer
+}
+.ya-optionBtn:hover{background:rgba(255,255,255,.08)}
+.ya-optionBtn small{display:block;opacity:.65;font-weight:600;margin-top:3px}
+.ya-inlineMeta{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.ya-inlineMeta .ya-muted{font-size:12px}
+.ya-miniDivider{height:1px;background:rgba(255,255,255,.08);margin:2px 0}
+.ya-panelActions{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.ya-linkBtn{background:none;border:0;color:#cbd5ff;cursor:pointer;font-weight:800;padding:0}
+.ya-linkBtn:hover{text-decoration:underline}
+</style>
+
+
+<style>
+/* YA_V23_LIVE_PREVIEW */
+.ya-previewCard{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(12,16,26,.62);
+  border-radius:22px;
+  padding:16px;
+  margin-top:16px;
+}
+.ya-previewHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+}
+.ya-previewHead h3{
+  margin:0;
+  font-size:20px;
+}
+.ya-previewSub{
+  margin:4px 0 0;
+  opacity:.75;
+  font-size:13px;
+}
+.ya-previewChat{
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.18);
+  border-radius:18px;
+  min-height:220px;
+  max-height:320px;
+  overflow:auto;
+  padding:12px;
+}
+.ya-previewMsg{
+  display:flex;
+  gap:10px;
+  margin:10px 0;
+}
+.ya-previewTag{
+  min-width:52px;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  opacity:.65;
+}
+.ya-previewBubble{
+  padding:10px 12px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  max-width:100%;
+}
+.ya-previewMsg.user .ya-previewBubble{
+  background:rgba(130,180,255,.12);
+  border-color:rgba(130,180,255,.22);
+}
+.ya-previewInputRow{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+.ya-previewInput{
+  flex:1 1 300px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  padding:12px 12px;
+  font-weight:700;
+  outline:none;
+}
+.ya-previewInput:focus{
+  border-color:rgba(160,120,255,.6);
+  box-shadow:0 0 0 4px rgba(160,120,255,.14);
+}
+.ya-previewMeta{
+  font-size:12px;
+  opacity:.72;
+}
+</style>
+
+
+<style>
+/* YA_V24_FIX */
+html, body { background-attachment:scroll !important;!important; }
+body, body * { animation-play-state: running; }
+body.ya-theme-static, body.ya-theme-static * {
+  animation: none !important;
+  transition: none !important;
+}
+.ya-static-bg, .bg-orb, .gradient-bg, .theme-blob, .theme-glow, .theme-noise {
+  animation: none !important;
+  transform: none !important;
+}
+#yaScenarioNative{
+  position:absolute !important; opacity:0 !important; pointer-events:none !important;
+  width:0 !important; height:0 !important; overflow:hidden !important;
+}
+.ya-scenario-enhanced{display:grid;gap:10px}
+.ya-scenario-trigger{
+  width:100%;display:flex;justify-content:space-between;align-items:center;
+  border-radius:14px;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);color:#fff;padding:12px 12px;font-weight:750;cursor:pointer;
+}
+.ya-scenario-panel{
+  border:1px solid rgba(255,255,255,.12);background:rgba(12,16,26,.98);
+  border-radius:18px;padding:12px;display:none;gap:12px;box-shadow:0 24px 80px rgba(0,0,0,.45);
+  position:relative; z-index:9999;
+}
+.ya-scenario-panel.open{display:grid}
+.ya-scenario-list{display:grid;gap:8px}
+.ya-scenario-btn{
+  text-align:left;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);color:#fff;
+  padding:10px 12px;border-radius:12px;font-weight:700;cursor:pointer
+}
+.ya-scenario-btn:hover{background:rgba(255,255,255,.08)}
+.ya-theme-lock{
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;
+  padding:8px 10px;border-radius:999px;font-weight:800;font-size:12px;cursor:pointer
+}
+</style>
+
+
+<style>
+/* YA_V25_SCROLL_AND_INPUT_FIX */
+html, body{
+  background-attachment: scroll !important;
+}
+body{
+  transform: none !important;
+  perspective: none !important;
+}
+body::before, body::after,
+[class*="parallax"], [class*="scroll"], [class*="blob"], [class*="orb"], [class*="glow"], [class*="gradient"],
+.bg-orb, .gradient-bg, .theme-blob, .theme-glow, .theme-noise{
+  background-attachment: scroll !important;
+  will-change: auto !important;
+}
+[data-scroll], [data-parallax], .parallax, .scroll-fx, .hero-bg, .hero-visual{
+  transform: none !important;
+  translate: none !important;
+}
+</style>
+
+
+<style>
+/* YA_V26_HARDFIX */
+html, body { background-attachment: scroll !important; scroll-behavior: smooth; }
+body, main, section, div { transform: none; }
+body::before, body::after,
+[class*="parallax"], [class*="blob"], [class*="glow"], [class*="noise"], [class*="gradient"], [class*="hero-bg"], [class*="hero-visual"],
+.bg-orb, .gradient-bg, .theme-blob, .theme-glow, .theme-noise, .hero-bg, .hero-visual {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+  translate: none !important;
+  background-attachment: scroll !important;
+}
+#yaCallOrb, .ya-orb, .ya-orbGlow {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+#yaCallInput { position: relative; z-index: 5; }
+#yaCallSend, #yaCallStart, #yaCallEnd { position: relative; z-index: 5; cursor: pointer; }
+</style>
+
+
+<style>
+/* YA_V27_VISUAL_STATIC_AND_NO_VAPI */
+html, body {
+  background: linear-gradient(180deg, #07101f 0%, #07111f 45%, #081223 100%) !important;
+  background-attachment: scroll !important;
+}
+body::before, body::after,
+.bg-orb, .gradient-bg, .theme-blob, .theme-glow, .theme-noise,
+.hero-visual, [class*="blob"], [class*="glow"], [class*="noise"], [class*="parallax"] {
+  display: none !important;
+  animation: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+header, nav, .topbar, .navbar, .site-header, .sticky, .sticky-nav, [class*="header"], [class*="nav"] {
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+.glass, .glassCard, .glassmorphism, .blur, [class*="glass"] {
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+</style>
+
+
+<style>
+/* YA_V28_THEME_TRIPLE_CHECK */
+html, body{
+  background: linear-gradient(180deg, #07101f 0%, #07111f 48%, #081223 100%) !important;
+  background-attachment: scroll !important;
+}
+*{
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+body::before, body::after,
+.bg-orb, .gradient-bg, .theme-blob, .theme-glow, .theme-noise,
+.hero-visual, .hero-bg, [class*="blob"], [class*="glow"], [class*="noise"], [class*="parallax"]{
+  display:none !important;
+  animation:none !important;
+  transition:none !important;
+  transform:none !important;
+  filter:none !important;
+  opacity:0 !important;
+}
+header, nav, .topbar, .navbar, .site-header, .sticky, .sticky-nav,
+[class*="header"], [class*="nav"], .glass, .glassCard, .glassmorphism, .blur, [class*="glass"]{
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  background-image:none !important;
+}
+header, nav, .topbar, .navbar, .site-header{
+  background: rgba(7,16,31,.96) !important;
+}
+section, main, div{
+  background-attachment: scroll !important;
+}
+</style>
+
+
+<style>
+/* YA_V29_THEME_AND_CONVERSION */
+.hero::before, .hero::after,
+.hero-overlay, .hero-mask, .section-overlay, .bg-overlay,
+[class*="hero-overlay"], [class*="hero-mask"], [class*="section-overlay"], [class*="bg-overlay"]{
+  display:none !important;
+  opacity:0 !important;
+  background:none !important;
+  content:none !important;
+}
+.hero, .heroSection, .hero-wrap, [class*="hero"]{
+  background-image:none !important;
+}
+.ya-wave{
+  display:flex; align-items:flex-end; gap:6px; height:52px;
+  padding:10px 12px; border-radius:16px;
+  border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04);
+  margin-top:10px;
+}
+.ya-wave span{
+  width:8px; border-radius:99px; background:linear-gradient(180deg, rgba(37,194,255,.95), rgba(150,99,255,.9));
+  animation: yaWave 1.1s ease-in-out infinite;
+}
+.ya-wave span:nth-child(2){animation-delay:.08s}
+.ya-wave span:nth-child(3){animation-delay:.16s}
+.ya-wave span:nth-child(4){animation-delay:.24s}
+.ya-wave span:nth-child(5){animation-delay:.32s}
+.ya-wave span:nth-child(6){animation-delay:.40s}
+.ya-wave span:nth-child(7){animation-delay:.48s}
+@keyframes yaWave{
+  0%,100%{height:10px; opacity:.6}
+  50%{height:34px; opacity:1}
+}
+.ya-kpiYear{
+  margin-top:6px; font-size:12px; opacity:.72;
+}
+.ya-previewCard .ya-previewHead{
+  align-items:center;
+}
+</style>
+
+<style>
+/* YA_V30 */
+.hero, .heroSection, .heroWrap, .heroShell, .heroSticky, .topSection {
+  position: relative !important; top:auto !important; height:auto !important; min-height:auto !important;
+  overflow:visible !important; border-bottom:none !important; box-shadow:none !important;
+}
+.hero::before, .hero::after, .hero-overlay, .hero-mask, .section-overlay, .bg-overlay,
+[class*="hero-overlay"], [class*="hero-mask"], [class*="section-overlay"], [class*="bg-overlay"]{
+  display:none !important; opacity:0 !important; background:none !important; content:none !important;
+}
+.ya-faqList{display:grid;gap:12px}
+.ya-faqItem{border:1px solid rgba(255,255,255,.12);background:rgba(12,16,26,.55);border-radius:18px;overflow:hidden}
+.ya-faqQ{width:100%;background:none;border:0;color:#fff;text-align:left;padding:18px 20px;font-weight:800;font-size:18px;cursor:pointer;display:flex;justify-content:space-between;gap:16px}
+.ya-faqA{padding:0 20px 18px;color:rgba(255,255,255,.82);line-height:1.6;display:none}
+.ya-faqItem.open .ya-faqA{display:block}
+.ya-faqIcon{opacity:.72}
+</style></head>
+<body>
+<a class="skip" href="#main">Vai al contenuto</a>
+<header class="topbar">
+<div class="container nav">
+<a aria-label="YourAgent Start" class="brand" href="#top">
+<span aria-hidden="true" class="mark"></span>
+<span class="brandtext">your<span class="brandGrad">agent</span></span>
+</a>
+<nav aria-label="Hauptnavigation" class="links">
+<a href="#usecases">Use-Cases</a>
+<a href="#features">Features</a>
+<a href="#leistungen">Extra</a>
+<a class="navLink" href="#faq">FAQ</a><a class="navLink" href="#ablauf">Processo</a><a href="#kontakt">Contatto</a>
+
+      <a href="#compare">Confronto</a>
+      <a href="#industries">Settori</a>
+      <a href="#integrations">Integrazioni</a>
+      <a href="#roi">ROI</a>
+      <a href="#dashboard">Dashboard</a>
+
+
+      <a href="#builder">Builder</a>
+
+      <a href="#real-call">Call Demo</a>
+</nav>
+<div class="actions">
+<button aria-label="Theme wechseln" class="ghost" id="themeToggle" type="button">Theme</button>
+<a class="cta" href="#kontakt">Richiedi demo</a>
+<div aria-label="Language" class="langbarHeader">
+<a class="ya-lang" data-lang="de" href="../de/index.html">DE</a>
+<a class="ya-lang" data-lang="en" href="../en/index.html">EN</a>
+<a class="ya-lang" data-lang="it" href="../it/index.html">IT</a>
+<a class="ya-lang" data-lang="fr" href="../fr/index.html">FR</a>
+<a class="ya-lang" data-lang="bg" href="../bg/index.html">BG</a>
+</div>
+</div>
+</div>
+</header>
+<main id="main">
+<!-- HERO -->
+<section class="hero" id="top">
+<div class="container heroGrid">
+<div class="heroCopy">
+<a class="cta" href="https://app.your-agent.tech/signup">Richiedi demo</a>
+<a class="secondary" href="#features">Vedi funzionalità</a>
+  <div class="ya-heroCtas" style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap;">
+    <a class="ya-btn ya-btn--primary" href="#demo">Prova la demo live</a>
+    <a class="ya-btn ya-btn--ghost" href="#contact">Contact</a>
+<a class="cta" href="https://app.your-agent.tech/signup">Demo gratuita</a>
+<a class="secondary" href="#angebot">Vedi prezzo</a>
+<p class="lead">
+            YourAgent risponde alle domande, qualifica i lead, prenota appuntamenti e alleggerisce il tuo team.
+            Suona naturale, funziona in modo affidabile, pronta subito.
+<a class="cta" href="https://app.your-agent.tech/signup">Richiedi demo</a>
+<a class="secondary" href="#features">Features</a>
+<a class="cta" href="#kontakt">Richiedi demo</a>
+<a class="secondary" href="#features">Vedi funzionalità</a>
+</div>
+<div aria-label="Highlights" class="kpis" role="list">
+<div class="kpi" role="listitem">
+<div class="kpiTop">Reperibilità</div>
+<div class="kpiVal">24/7</div>
+<div class="kpiSub">Mai più chiamate perse</div>
+</div>
+<div class="kpi" role="listitem">
+<div class="kpiTop">Qualità</div>
+<div class="kpiVal">Naturale</div>
+<div class="kpiSub">Chiaro &amp; professionale</div>
+</div>
+<div class="kpi" role="listitem">
+<div class="kpiTop">Integrazioni</div>
+<div class="kpiVal">Pronto per CRM</div>
+<div class="kpiSub">Calendario, CRM, ticket</div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="heroVisual">
+<div class="card glass">
+<div class="cardHead">
+<span class="dot"></span><span class="dot"></span><span class="dot"></span>
+<span class="title">Live Call Flow</span>
+</div>
+<div class="cardBody">
+<div class="flow">
+<div class="flowItem">
+<div class="flowIcon">📞</div>
+<div>
+<div class="flowTitle">Chiamata in arrivo</div>
+<div class="flowSub">Saluto + richiesta</div>
+</div>
+</div>
+<div class="flowItem">
+<div class="flowIcon">🧾</div>
+<div>
+<div class="flowTitle">Qualificazione</div>
+<div class="flowSub">Budget • luogo • urgenza</div>
+</div>
+</div>
+<div class="flowItem">
+<div class="flowIcon">🗓️</div>
+<div>
+<div class="flowTitle">Appuntamento</div>
+<div class="flowSub">Prenota slot calendario</div>
+</div>
+</div>
+<div class="flowItem">
+<div class="flowIcon">🔗</div>
+<div>
+<div class="flowTitle">Sync</div>
+<div class="flowSub">CRM/Email/Slack</div>
+</div>
+</div>
+</div>
+<div class="metric">
+<div class="metricLabel">Livello di automazione</div>
+<div class="metricBar"><span style="width: 74%"></span></div>
+</div>
+<div class="metric">
+<div class="metricLabel">Throughput</div>
+<div class="metricBar"><span style="width: 58%"></span></div>
+</div>
+</div>
+</div>
+<div class="glow g1"></div>
+<div class="glow g2"></div>
+</div>
+</div>
+</section><section class="section" id="proof">
+<div class="container">
+<div class="sectionHead">
+<h2>Fiducia e risultati</h2>
+<p class="muted">Breve. Misurabile. Pensato per flussi reali — non per demo giocattolo.</p>
+</div>
+<div class="kpiRow">
+<div class="kpiCard"><div class="kpiLabel">Tempo risposta</div><div class="kpiValue">&lt; 1 min</div></div>
+<div class="kpiCard"><div class="kpiLabel">Go‑live</div><div class="kpiValue">7–14 giorni</div></div>
+<div class="kpiCard"><div class="kpiLabel">Qualifica</div><div class="kpiValue">1 flow</div></div>
+</div>
+<div class="glass cardPad mt24">
+<div class="rowBetween">
+<div>
+<div class="smallCaps">Strumenti comuni (esempi)</div>
+<div class="muted" style="margin-top:6px">CRM • Calendar • Telephony • Analytics • Automation</div>
+</div>
+</div>
+<div class="logoRow"><span class="chip">Voice API</span><span class="chip">OpenAI</span><span class="chip">Deepgram</span><span class="chip">Twilio</span><span class="chip">Supabase</span><span class="chip">Vercel</span><span class="chip">HubSpot</span><span class="chip">Slack</span><span class="chip">Zapier</span><span class="chip">Google Calendar</span></div>
+</div>
+<div class="quoteGrid mt24">
+<figure class="glass quoteCard">
+<blockquote>“Meno caos: l’agente raccoglie tutto in modo pulito e inoltra correttamente.”</blockquote>
+<figcaption class="muted">Operations / Service</figcaption>
+</figure>
+<figure class="glass quoteCard">
+<blockquote>“Sito + CTA flow insieme: più richieste, meno ping‑pong.”</blockquote>
+<figcaption class="muted">Agenzia / B2B</figcaption>
+</figure>
+<figure class="glass quoteCard">
+<blockquote>“Live veloce. Poi stabile — senza smanettare.”</blockquote>
+<figcaption class="muted">Hospitality</figcaption>
+</figure>
+</div>
+</div>
+</section>
+<!-- USE CASES -->
+<section class="section alt" id="usecases">
+<div class="container">
+<div class="sectionHead">
+<h2>Use case che proteggono subito il fatturato</h2>
+<p class="muted">Il tuo agente gestisce le chiamate ricorrenti — il team si concentra sul core business.</p>
+</div>
+<div class="grid3">
+<article class="service">
+<div class="serviceIcon">🛠️</div>
+<h3>Artigiani &amp; servizi</h3>
+<p class="muted">Raccoglie richieste, valuta l’urgenza, chiede foto/info, fissa un appuntamento.</p>
+<a aria-label="Preview image" class="serviceMedia" data-lightbox="../assets/img/voice-ai.jpeg" href="../assets/img/voice-ai.jpeg">
+<img alt="Use case preview" decoding="async" loading="lazy" src="../assets/img/voice-ai.jpeg"/>
+</a>
+<ul class="bullets">
+<li>Emergenze &amp; slot rapidi</li>
+<li>Raccogli luogo + servizio</li>
+<li>Inoltra lead</li>
+</ul>
+</article>
+<article class="service">
+<div class="serviceIcon">🍽️</div>
+<h3>Ristorazione &amp; prenotazioni</h3>
+<p class="muted">Prenotazioni, orari, eventi, catering — senza attesa.</p>
+<a aria-label="Preview image" class="serviceMedia" data-lightbox="../assets/img/website-system.jpeg" href="../assets/img/website-system.jpeg">
+<img alt="Use case preview" decoding="async" loading="lazy" src="../assets/img/website-system.jpeg"/>
+</a>
+<ul class="bullets">
+<li>Numero persone &amp; orario</li>
+<li>Allergie &amp; note</li>
+<li>Conferma via SMS/e-mail</li>
+</ul>
+</article>
+<article class="service">
+<div class="serviceIcon">🏢</div>
+<h3>Ufficio &amp; supporto</h3>
+<p class="muted">FAQ, creazione ticket, pianificazione richiami, instradamento clienti, raccolta dati.</p>
+<a aria-label="Preview image" class="serviceMedia" data-lightbox="../assets/img/automation.jpeg" href="../assets/img/automation.jpeg">
+<img alt="Use case preview" decoding="async" loading="lazy" src="../assets/img/automation.jpeg"/>
+</a>
+<ul class="bullets">
+<li>Ticket + categorie</li>
+<li>Orari di richiamata</li>
+<li>Note CRM</li>
+</ul>
+</article>
+</div>
+</div>
+</section>
+<!-- FEATURES -->
+<section class="section" id="features">
+<div class="container">
+<div class="split">
+<div>
+<h2>Features</h2>
+<p class="muted">Apple-clean fuori — processi puliti dentro.</p>
+<div class="featureList">
+<div class="feature">
+<div class="featureIcon">🗣️</div>
+<div>
+<div class="featureTitle">Parlato naturale</div>
+<div class="featureSub">Chiaro, cordiale, professionale — niente effetto robot.</div>
+</div>
+</div>
+<div class="feature">
+<div class="featureIcon">🧠</div>
+<div>
+<div class="featureTitle">Base di conoscenza</div>
+<div class="featureSub">FAQ, servizi, prezzi, regole — dai tuoi documenti/sito.</div>
+</div>
+</div>
+<div class="feature">
+<div class="featureIcon">🗓️</div>
+<div>
+<div class="featureTitle">Prenotazione</div>
+<div class="featureSub">Sync calendario, slot, conferme.</div>
+</div>
+</div>
+<div class="feature">
+<div class="featureIcon">🔒</div>
+<div>
+<div class="featureTitle">Conforme GDPR</div>
+<div class="featureSub">Minimizzazione dati, flussi chiari, logging se necessario.</div>
+</div>
+</div>
+</div>
+</div>
+<div class="panel">
+<h3>Cosa ottieni</h3>
+<ul class="check">
+<li>Setup: call flow + prompt + regole</li>
+<li>Numero/inoltro</li>
+<li>Lead/ticket direttamente nel sistema</li>
+<li>Reporting: chiamate, motivi, conversione</li>
+</ul>
+<div class="panelCta">
+<a class="cta" href="#kontakt">Demo gratuita</a>
+<a class="secondary" href="#angebot">Vedi prezzo</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ANGEBOT -->
+<section class="section alt" id="angebot">
+<div class="container">
+<div class="sectionHead">
+<h2>Offerta &amp; prezzi</h2>
+<p class="muted">Ogni attività è diversa. Per questo non offriamo un pacchetto rigido, ma un setup adatto a chiamate, processi e obiettivi.</p>
+</div>
+<div class="split">
+<div class="panel">
+<h3>Cosa determina il prezzo</h3>
+<ul class="check">
+<li>Complessità del call-flow (FAQ, qualificazione, passaggi)</li>
+<li>Integrazioni (calendario, CRM, ticket, webhook)</li>
+<li>Lingue &amp; sedi</li>
+<li>Volume chiamate / orari</li>
+</ul>
+</div>
+<div class="panel">
+<h3>Flusso tipico</h3>
+<ul class="check">
+<li>15–20 min call introduttiva</li>
+<li>Concept + perimetro definito</li>
+<li>Build &amp; test</li>
+<li>Go-live + rifinitura</li>
+</ul>
+<div class="panelCta">
+<a class="cta" href="#kontakt">Demo gratuita</a>
+<a class="secondary" href="#features">Features</a>
+</div>
+</div>
+</div>
+<div class="note">
+<div class="noteTitle">Suggerimento</div>
+<div class="noteText">Se ci mandi 10 domande frequenti + il processo desiderato, proponiamo rapidamente un setup adatto.</div>
+</div>
+</div>
+</section>
+<!-- ZUSATZLEISTUNGEN -->
+<section class="section" id="leistungen">
+<div class="container">
+<div class="sectionHead">
+<h2>Servizi aggiuntivi</h2>
+<p class="muted">Se vuoi più del telefono — costruiamo tutta l’infrastruttura growth.</p>
+</div>
+<div class="grid3">
+<article class="service">
+<div class="serviceIcon">🛒</div>
+<h3>Setup e-commerce</h3>
+<p class="muted">Setup shop, landing page, pagamenti, tracking e struttura conversione pulita.</p>
+<ul class="bullets">
+<li>Shopify / WooCommerce</li>
+<li>Pagine prodotto &amp; bundle</li>
+<li>Ottimizzazione checkout</li>
+</ul>
+</article>
+<article class="service">
+<div class="serviceIcon">🎯</div>
+<h3>Lead &amp; advertising</h3>
+<p class="muted">Aiutiamo con lead generation e performance ads — misurabile ed efficiente.</p>
+<ul class="bullets">
+<li>Google Ads / Meta Ads</li>
+<li>Landing page + tracking</li>
+<li>Qualificazione lead</li>
+</ul>
+</article>
+<article class="service">
+<div class="serviceIcon">🤝</div>
+<h3>Contatti B2B</h3>
+<p class="muted">Costruzione pipeline B2B: outreach, liste, processi, follow-up.</p>
+<ul class="bullets">
+<li>Liste clienti target</li>
+<li>Sistemi di outreach</li>
+<li>CRM + follow-up</li>
+</ul>
+</article>
+</div>
+</div>
+</section>
+<!-- CTA -->
+<section class="ctaBand">
+<div class="container ctaGrid">
+<div>
+<h2>Live in 14 giorni.</h2>
+<p class="muted">Costruiamo l’agente, lo testiamo e lo mettiamo live — pulito, prevedibile, senza caos.</p>
+</div>
+<div class="ctaBtns">
+<a class="cta" href="#kontakt">Richiedi demo</a>
+<a class="secondary" href="#features">Features</a>
+</div>
+</div>
+</section>
+<!-- KONTAKT -->
+<section class="ya-section" id="faq"><div class="ya-wrap"><div class="rowBetween" style="gap:14px; align-items:end; margin-bottom:16px;"><div><h2 class="ya-h2">FAQ</h2></div><div class="ya-p" style="margin:0">Breve e chiaro.</div></div><div class="ya-faqList"><div class="ya-faqItem"><button class="ya-faqQ" type="button"><span>Quanto costa YourAgent?</span><span class="ya-faqIcon">+</span></button><div class="ya-faqA">Il setup dipende da use case, flow, integrazioni e profondità del progetto. Di solito i progetti partono da circa 3.000 € e crescono in base ad automazioni, sito e CRM.</div></div><div class="ya-faqItem"><button class="ya-faqQ" type="button"><span>Quanto velocemente può andare live?</span><span class="ya-faqIcon">+</span></button><div class="ya-faqA">I setup semplici possono andare live in 7–14 giorni. Progetti più complessi con più flow, integrazioni o più lingue richiedono più tempo.</div></div><div class="ya-faqItem"><button class="ya-faqQ" type="button"><span>Per quali settori è adatto?</span><span class="ya-faqIcon">+</span></button><div class="ya-faqA">Funziona molto bene per artigiani, servizi locali, ristoranti, studi, team B2B e aziende con richieste ricorrenti, prenotazioni o pre-qualifica.</div></div><div class="ya-faqItem"><button class="ya-faqQ" type="button"><span>Posso iniziare in piccolo ed espandere dopo?</span><span class="ya-faqIcon">+</span></button><div class="ya-faqA">Sì. Puoi iniziare con una base chiara e aggiungere poi sito, CRM, routing, automazioni, follow-up o altre lingue.</div></div><div class="ya-faqItem"><button class="ya-faqQ" type="button"><span>Serve già un CRM o altri strumenti?</span><span class="ya-faqIcon">+</span></button><div class="ya-faqA">No. Se hai già strumenti li colleghiamo. Se non li hai, impostiamo il sistema in modo che tu possa partire bene ed espandere dopo.</div></div><div class="ya-faqItem"><button class="ya-faqQ" type="button"><span>Funziona anche in più lingue?</span><span class="ya-faqIcon">+</span></button><div class="ya-faqA">Sì. I flow multilingua sono possibili se vengono progettati e testati bene. L’importante è mantenere coerenza tra lingua, routing e contenuti.</div></div><div class="ya-faqItem"><button class="ya-faqQ" type="button"><span>Come funziona il setup?</span><span class="ya-faqIcon">+</span></button><div class="ya-faqA">Di solito: briefing → flow/logica → prompt e struttura → test → go-live → rifinitura. L’obiettivo è un sistema chiaro e stabile, non complicazioni inutili.</div></div><div class="ya-faqItem"><button class="ya-faqQ" type="button"><span>Cosa succede alle richieste fuori orario?</span><span class="ya-faqIcon">+</span></button><div class="ya-faqA">Proprio lì c’è il maggiore valore: l’agente raccoglie richieste, dati, pre-qualifica e instrada correttamente, così si perdono meno lead.</div></div></div></div></section><section class="section" id="ablauf">
+<div class="container">
+<div class="sectionHead">
+<h2>Processo</h2>
+<p class="muted">Workflow senior: veloce, strutturato, senza overengineering.</p>
+</div>
+<div class="stepGrid">
+<div class="stepCard glass">
+<div class="stepNum">1</div>
+<div class="stepBody">
+<div class="stepTitle">Briefing &amp; obiettivo</div>
+<div class="muted">Use‑case, target, input/output, obiettivo CTA.</div>
+</div>
+</div>
+<div class="stepCard glass">
+<div class="stepNum">2</div>
+<div class="stepBody">
+<div class="stepTitle">Design &amp; copy</div>
+<div class="muted">Look Apple‑clean, messaggi chiari, niente placeholder.</div>
+</div>
+</div>
+<div class="stepCard glass">
+<div class="stepNum">3</div>
+<div class="stepBody">
+<div class="stepTitle">Build &amp; QA</div>
+<div class="muted">Flow, routing, tracking, test (browser + mobile).</div>
+</div>
+</div>
+<div class="stepCard glass">
+<div class="stepNum">4</div>
+<div class="stepBody">
+<div class="stepTitle">Go‑live &amp; tuning</div>
+<div class="muted">Deploy HTTPS, monitoraggio, ottimizzazione su dati reali.</div>
+</div>
+</div>
+</div>
+</div>
+</section><section class="section" id="kontakt">
+<div class="container">
+<div class="sectionHead">
+<h2>Contatto</h2>
+<p class="muted">Invia settore + obiettivo. Rispondiamo con il prossimo passo chiaro.</p>
+</div>
+<div class="contactGrid">
+<form class="form" id="contactForm">
+<label>
+              Name
+              <input autocomplete="name" name="name" placeholder="Il tuo Name" required=""/>
+</label>
+<label>
+              E-Mail
+              <input autocomplete="email" name="email" placeholder="dein@email.de" required="" type="email"/>
+</label>
+<label>
+              Azienda (opzionale)
+              <input autocomplete="organization" name="company" placeholder="Firma"/>
+</label>
+<label>
+              Messaggio
+              <textarea name="message" placeholder="Was soll der Agent können? (Leads, Appuntamentoe, Support …)" required="" rows="5"></textarea>
+</label>
+<div class="formRow">
+<button class="cta" type="submit">Invia richiesta</button>
+<p class="tiny muted">Inviando, accetti di essere contattato. (Privacy/Note legali nel footer.)</p>
+</div>
+<div aria-live="polite" class="toast" id="toast" role="status"></div>
+</form>
+<aside class="sideCard">
+<h3>Checklist demo</h3>
+<p class="muted">Per farlo combaciare subito, invia (opzionale):</p>
+<ul class="bullets">
+<li>Orari &amp; area di servizio</li>
+<li>Top 10 domande clienti</li>
+<li>Calendario/CRM (se presente)</li>
+</ul>
+<div class="miniCtas">
+<a class="secondary" href="mailto:hello@youragent.de?subject=Demo%20Anfrage%20YourAgent">Apri e-mail</a>
+<a class="secondary" href="#top">Torna su</a>
+</div>
+<div class="legal">
+<div class="legalTitle">Legale</div>
+<p class="tiny muted">Segnaposto: sostituisci Note legali/Privacy con i testi finali.</p>
+</div>
+</aside>
+</div>
+</div>
+</section>
+<section class="ya-demo" id="demo">
+<div class="ya-demo__grid">
+<div class="ya-demo__left">
+<div class="ya-kicker">YOURAGENT</div>
+<h2>Live Demo</h2>
+<p class="ya-muted">Scegli un sistema e avvia una simulazione realistica — nessun permesso microfono, direttamente nel browser.</p>
+<div aria-label="Demo scenarios" class="ya-demo__controls" role="group">
+<button class="ya-pill" data-sim="restaurant">Restaurant</button>
+<button class="ya-pill" data-sim="handwerk">Artigiani</button>
+<button class="ya-pill" data-sim="elektriker">Elettricista</button>
+</div>
+<div class="ya-demo__ctaRow">
+<button class="ya-btn ya-btn--primary" id="yaStartSim">Start</button>
+<button class="ya-btn ya-btn--ghost" id="yaResetSim">Reset</button>
+</div>
+<div class="ya-demo__hint ya-muted">Tip: Click “Start”, then watch the transcript update in real-time.</div>
+</div>
+<div class="ya-demo__right">
+<div class="ya-card">
+<div class="ya-card__actions">
+<button class="ya-btn ya-btn--primary" id="talkLiveBtn" type="button">Talk Live</button>
+<button class="ya-btn ya-btn--ghost" id="talkLiveStop" style="display:none" type="button">Stop</button>
+<span aria-live="polite" class="statusPill">
+<span aria-hidden="true" class="ya-statusDot"></span>
+<span id="talkLiveStatus">Pronto</span>
+</span>
+<button class="ya-btn ya-btn--ghost" id="yaResetSimTop" type="button">Ferma simulazione</button>
+</div>
+<div class="ya-card__top">
+<div aria-hidden="true" class="ya-orbWrap">
+<div class="ya-orb" id="yaOrb"></div>
+<div class="ya-orbGlow"></div>
+</div>
+<div aria-hidden="true" class="ya-wave">
+<span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+</div>
+<div class="ya-statusRow">
+<div class="ya-statusDot" id="yaDot"></div>
+<div class="ya-statusText" id="yaStatus">Idle</div>
+</div>
+</div>
+<div aria-live="polite" class="ya-transcript" id="yaTranscript">
+<div class="ya-msg ya-msg--assistant"><div class="ya-badge">Agent</div><div class="ya-bubble">Ciao! Scegli un sistema a sinistra e premi Start.</div></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="ya-section" id="real-call">
+  <div class="ya-wrap">
+    <h2 class="ya-h2">Real Call Experience</h2>
+    <p class="ya-p">Prova una simulazione di chiamata nel browser. Microfono opzionale (meglio HTTPS/localhost).</p>
+
+    <div class="ya-callGrid">
+      <div class="ya-callPhone">
+        <div class="ya-callTop">
+          <div class="ya-callTitle">YOURAGENT</div>
+          <div class="ya-callStatus"><span class="ya-dot" id="yaCallDot"></span><span id="yaCallStatus">Pronto</span></div>
+        </div>
+
+        <div class="ya-callBody">
+          <div class="ya-orbWrap" aria-hidden="true">
+            <div class="ya-orb" id="yaCallOrb"></div>
+            <div class="ya-orbGlow"></div>
+          </div>
+          <div class="ya-callTranscript" id="yaCallTranscript" aria-live="polite"></div>
+        </div>
+
+        <div class="ya-callControls">
+          <div class="ya-row">
+            <label class="ya-field" style="flex:1; margin:0">Scenario
+              <select class="ya-select" id="yaCallScenario">
+<option value="restaurant">Prenotazione ristorante</option>
+<option value="electrician">Richiesta elettricista</option>
+<option value="trades">Progetto artigiano</option>
+</select>
+            </label>
+          </div>
+
+          <div class="ya-row" style="margin-top:10px">
+            <button class="ya-btn ya-btn--primary" id="yaCallStart">Avvia chiamata</button>
+            <button class="ya-btn ya-btn--ghost" id="yaCallEnd">Chiudi</button>
+            <label class="ya-check" style="margin:0"><input type="checkbox" id="yaUseMic" /> Usa microfono</label>
+          </div>
+
+          <div class="ya-row" style="margin-top:10px">
+            <input class="ya-select" id="yaCallInput" placeholder="o scrivi…" />
+            <button class="ya-btn" id="yaCallSend">Invia</button>
+          </div>
+
+          <div class="ya-roiNote">Se microfono/audio è bloccato, usa il testo.</div>
+        </div>
+      </div>
+
+      <div class="ya-callSide">
+        <div class="ya-miniCard">
+          <div class="ya-miniTitle">Killer element</div>
+          <div class="ya-miniText">Fake‑Phone UI + Voice (Browser) + Live Transcript — wirkt wie echte AI Demo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="ya-section" id="builder">
+  <div class="ya-wrap">
+    <h2 class="ya-h2">AI Agent Builder</h2>
+    <p class="ya-p">Crea un agente demo in 60 secondi. Alla fine ottieni un system prompt pronto (copia & incolla).</p>
+
+    <div class="ya-builder">
+      <div class="ya-builderGrid">
+        <div>
+          <label class="ya-field">Settore
+            <select id="yaIndustry" class="field">
+<option value="electrician">Elettricista</option>
+<option value="plumber">Idraulico</option>
+<option value="hvac">Riscaldamento/Clima</option>
+<option value="painter">Imbianchino</option>
+<option value="roofer">Tetto</option>
+<option value="carpenter">Falegname</option>
+<option value="tiler">Piastrellista</option>
+<option value="drywall">Cartongesso</option>
+<option value="flooring">Pavimenti</option>
+<option value="windows">Finestre/Porte</option>
+<option value="solar">Solare/FV</option>
+<option value="landscaping">Giardinaggio</option>
+<option value="cleaning">Pulizie</option>
+<option value="moving">Traslochi</option>
+<option value="locksmith">Fabbro/serrature</option>
+<option value="security">Sicurezza/Allarme</option>
+<option value="it_services">Servizi IT</option>
+<option value="accountant">Commercialista</option>
+<option value="lawyer">Avvocato</option>
+<option value="real_estate">Immobiliare</option>
+<option value="auto_repair">Officina</option>
+<option value="salon">Parrucchiere/Beauty</option>
+<option value="fitness">Fitness/Coach</option>
+<option value="restaurant">Ristorante</option>
+<option value="clinic">Clinica</option>
+<option value="agency_b2b">B2B & Agenzie</option>
+</select>
+          </label>
+          <div style="height:10px"></div>
+          <label class="ya-field">Obiettivo
+            <select class="ya-select" id="yaGoal"><option value="Prenotazioni/Appuntamenti">Prenotazioni/Appuntamenti</option>
+<option value="Qualifica lead">Qualifica lead</option>
+<option value="Assistenza/FAQ">Assistenza/FAQ</option>
+<option value="Richieste di richiamata">Richieste di richiamata</option></select>
+          </label>
+          <div style="height:10px"></div>
+          <label class="ya-field">Tono
+            <select class="ya-select" id="yaTone"><option value="Molto breve">Molto breve</option>
+<option value="Professionale">Professionale</option>
+<option value="Amichevole">Amichevole</option>
+<option value="Premium">Premium</option></select>
+          </label>
+
+          <div style="height:10px"></div>
+          <div class="ya-field">Integrazioni
+            <div class="ya-checks" id="yaInts"><label class="ya-check"><input type="checkbox" value="Calendario"/> Calendario</label>
+<label class="ya-check"><input type="checkbox" value="CRM"/> CRM</label>
+<label class="ya-check"><input type="checkbox" value="Email"/> Email</label>
+<label class="ya-check"><input type="checkbox" value="Slack"/> Slack</label>
+<label class="ya-check"><input type="checkbox" value="Webhooks"/> Webhooks</label></div>
+          </div>
+
+          <div style="height:14px"></div>
+          <div class="ya-row">
+            <button class="ya-btn ya-btn--primary" id="yaGenPrompt">Genera prompt</button>
+            <button class="ya-btn ya-btn--ghost" id="yaCopyPrompt">Copia</button>
+          </div>
+          <div style="margin-top:10px" class="ya-muted">Nota: è una demo. Per il go‑live creiamo il flow completo con QA calls e logica di routing.</div>
+        </div>
+
+        <div class="ya-out">
+          <div class="ya-roiLabel" style="margin-bottom:8px">Il tuo system prompt</div>
+          <textarea class="ya-textarea" id="yaPromptOut" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="ya-toast" id="yaToast">Copied</div>
+
+
+
+<section class="ya-section" id="compare">
+  <div class="ya-wrap">
+    <h2 class="ya-h2">Senza agente vs. con YourAgent</h2>
+    <div class="ya-compare">
+      <div class="ya-compareHead">
+        <div class="ya-compareCol">Before</div>
+        <div class="ya-compareCol">After</div>
+      </div>
+      
+      <div class="ya-compareRow">
+        <div class="ya-compareLeft">Chiamate perse</div>
+        <div class="ya-compareRight">Disponibile 24/7</div>
+      </div>
+
+      <div class="ya-compareRow">
+        <div class="ya-compareLeft">Lead non qualificati</div>
+        <div class="ya-compareRight">Qualifica + instradamento</div>
+      </div>
+
+      <div class="ya-compareRow">
+        <div class="ya-compareLeft">Lavoro manuale</div>
+        <div class="ya-compareRight">Workflow automatizzati</div>
+      </div>
+
+      <div class="ya-compareRow">
+        <div class="ya-compareLeft">Nessun dato</div>
+        <div class="ya-compareRight">Risultati strutturati</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ya-section" id="industries">
+  <div class="ya-wrap">
+    <h2 class="ya-h2">Settori</h2>
+    <div class="ya-grid3">
+      
+      <div class="ya-miniCard">
+        <div class="ya-miniTitle">Ristoranti</div>
+        <div class="ya-miniText">Prenotazioni, modifiche, FAQ</div>
+      </div>
+
+      <div class="ya-miniCard">
+        <div class="ya-miniTitle">Artigiani</div>
+        <div class="ya-miniText">Richieste, pre-qualifica, richiamate</div>
+      </div>
+
+      <div class="ya-miniCard">
+        <div class="ya-miniTitle">Cliniche</div>
+        <div class="ya-miniText">Appuntamenti, follow-up, raccolta dati</div>
+      </div>
+
+      <div class="ya-miniCard">
+        <div class="ya-miniTitle">Immobiliare</div>
+        <div class="ya-miniText">Visite, screening lead</div>
+      </div>
+
+      <div class="ya-miniCard">
+        <div class="ya-miniTitle">B2B Sales</div>
+        <div class="ya-miniText">Qualifica lead, agenda</div>
+      </div>
+
+      <div class="ya-miniCard">
+        <div class="ya-miniTitle">Supporto</div>
+        <div class="ya-miniText">FAQ, ticket, instradamento</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ya-section" id="integrations">
+  <div class="ya-wrap">
+    <h2 class="ya-h2">Integrazioni (esempi)</h2>
+    <div class="ya-chips"><span class="ya-chip">Google Calendar</span> <span class="ya-chip">HubSpot</span> <span class="ya-chip">Slack</span> <span class="ya-chip">Zapier</span> <span class="ya-chip">Webhooks</span> <span class="ya-chip">Email</span> <span class="ya-chip">CRM/ERP</span></div>
+  </div>
+</section>
+
+<section class="ya-section" id="roi">
+  <div class="ya-wrap">
+    <h2 class="ya-h2">Calcolatore ROI</h2>
+    <p class="ya-p">Stima veloce di quanto perdi con le chiamate perse.</p>
+
+    <div class="ya-roiCard">
+      <div class="ya-roiGrid">
+        <label class="ya-field">Chiamate/mese
+          <input id="yaCalls" type="number" min="0" value="120" inputmode="numeric" />
+        </label>
+        <label class="ya-field">Tasso perso (%)
+          <input id="yaMiss" type="number" min="0" max="100" value="25" inputmode="numeric" />
+        </label>
+        <label class="ya-field">Valore medio lead (€)
+          <input id="yaValue" type="number" min="0" value="120" inputmode="numeric" />
+        </label>
+<label class="ya-field">Close rate (%)
+  <input id="yaCloseRate" type="number" min="0" max="100" value="20" inputmode="numeric" />
+</label>
+        <div class="ya-roiOut">
+          <div class="ya-roiLabel">Risultato</div>
+          <div class="ya-roiNumber"><span>Potenziale/mese:</span> <b id="yaRoiResult">0 €</b></div>
+        </div>
+      </div>
+      <div class="ya-roiNote">Demo limitata a 60 secondi — per la versione completa: richiedi una demo.</div>
+    </div>
+  </div>
+</section>
+
+<section class="ya-section" id="dashboard">
+  <div class="ya-wrap">
+    <h2 class="ya-h2">AI Sales Dashboard (Demo)</h2>
+    <p class="ya-p">Vista operativa: chiamate, lead, appuntamenti e potenziale ricavi — dal sistema.</p>
+
+    <div class="ya-dashWrap">
+      <div class="ya-kpis">
+        <div class="ya-kpi"><div class="ya-kpiLabel">Chiamate oggi</div><div class="ya-kpiValue" id="yaKpiCalls">0</div><div class="ya-kpiSub">24/7</div></div>
+        <div class="ya-kpi"><div class="ya-kpiLabel">Lead acquisiti</div><div class="ya-kpiValue" id="yaKpiLeads">0</div><div class="ya-kpiSub">structured</div></div>
+        <div class="ya-kpi"><div class="ya-kpiLabel">Appuntamenti</div><div class="ya-kpiValue" id="yaKpiAppts">0</div><div class="ya-kpiSub">calendar</div></div>
+        <div class="ya-kpi"><div class="ya-kpiLabel">Potenziale ricavi</div><div class="ya-kpiValue" id="yaKpiRev">0 €</div><div class="ya-kpiSub">projection</div></div>
+      </div>
+
+      <div class="ya-dashGrid">
+        <div>
+          <div class="ya-kpiLabel" style="margin:10px 0 8px">Call volume</div>
+          <div class="ya-spark" id="yaSpark" aria-hidden="true"></div>
+        </div>
+        <div>
+          <div class="ya-kpiLabel" style="margin:10px 0 8px">Latest activity</div>
+          <table class="ya-miniTable">
+            <tbody id="yaDashList"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="ya-dashActions">
+        <button class="ya-btn ya-btn--ghost" id="yaDashRefresh">Aggiorna demo</button>
+        <div class="ya-roiNote">Dati demo. In go‑live colleghiamo strumenti reali (CRM, calendario, webhooks).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="ya-section" id="audit">
+  <div class="ya-wrap">
+    <div class="ya-audit">
+      <div>
+        <h2 class="ya-h2" style="margin:0 0 8px">AI call audit gratuito</h2>
+        <p class="ya-p" style="margin:0">Inviaci 10 domande tipiche + settore — creiamo una demo e consigliamo il miglior flow.</p>
+      </div>
+      <a class="ya-btn ya-btn--primary" href="#contact">Richiedi audit</a>
+    </div>
+  </div>
+</section>
+
+
+<section class="ya-section" id="cases">
+<div class="ya-wrap">
+<h2 class="ya-h2">Casi studio</h2>
+<p class="ya-p">Risultati tipici dai progetti</p>
+
+<div class="ya-grid3">
+<div class="ya-miniCard"><div class="ya-miniTitle">Restaurant</div><div class="ya-miniText">+30% mehr Reservierungen durch automatisierte Anrufannahme.</div></div>
+<div class="ya-miniCard"><div class="ya-miniTitle">Handwerker</div><div class="ya-miniText">Lead-Qualifizierung spart ~6h pro Woche im Büro.</div></div>
+<div class="ya-miniCard"><div class="ya-miniTitle">B2B Sales</div><div class="ya-miniText">Terminquote steigt durch strukturierte Qualifizierung.</div></div>
+</div>
+
+</div>
+</section>
+
+
+<section class="ya-section" id="playground">
+<div class="ya-wrap">
+<h2 class="ya-h2">Voice Playground</h2>
+<p class="ya-p">Simuliere ein Gespräch mit dem Agent.</p>
+
+<div class="ya-playground">
+<div class="ya-callUI">
+<div class="ya-callHeader">Incoming Call</div>
+<div class="ya-callBody">
+<div class="ya-orb"></div>
+<div class="ya-callText" id="yaCallText">Hello, how can I help you?</div>
+</div>
+<div class="ya-callControls">
+<button onclick="yaStartCall()">Start</button>
+<button onclick="yaEndCall()">End</button>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+</main>
+<footer class="footer">
+<div class="container footerGrid">
+<div>
+<div class="brandFooter">
+<span aria-hidden="true" class="mark"></span>
+<span class="brandtext">your<span class="brandGrad">agent</span></span>
+</div>
+<p class="muted tiny">Assistente vocale smart per aziende moderne.</p>
+</div>
+<div class="footerLinks">
+<a href="#usecases">Use-Cases</a>
+<a href="#leistungen">Extra</a>
+<a href="impressum.html">Note legali</a>
+<a href="datenschutz.html">Privacy</a>
+</div>
+<div class="footerNote tiny muted">
+        © <span id="year"></span> YourAgent. Tutti i diritti riservati.
+      </div>
+</div>
+</footer>
+<script src="../assets/youragent-config.js"></script>
+<script src="../assets/youragent-ai.js"></script>
+<script defer="" src="../assets/app.js"></script>
+<!-- Voice SDK block removed: broken inline module caused syntax error. -->
+<script>
+  (function () {
+    const statusEl = document.getElementById("talkLiveStatus");
+    if (statusEl && !statusEl.textContent.trim()) {
+      statusEl.textContent = "Ready";
+    }
+  })();
+</script>
+<script>
+/* YA_DEMO_SCRIPT */
+(function(){
+  const $ = (s, r=document)=>r.querySelector(s);
+  const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+  const transcript = $('#yaTranscript');
+  const statusText = $('#yaStatus');
+  const dot = $('#yaDot');
+  const wave = document.querySelector('.ya-wave');
+  const startBtn = $('#yaStartSim');
+  const resetBtn = $('#yaResetSim');
+
+  let sim = 'restaurant';
+  let timer = null;
+
+  const scripts = {
+  "restaurant": {
+    "label": "Ristorante",
+    "samples": [
+      "Ciao! Benvenuto. Per quante persone vuoi prenotare?",
+      "Per quale giorno e a che ora?",
+      "Ci sono allergie o note particolari?",
+      "Perfetto — ricapitolo e confermo la prenotazione. Grazie!"
+    ]
+  },
+  "trades": {
+    "label": "Artigiani",
+    "samples": [
+      "Ciao! Di cosa hai bisogno esattamente — quale servizio?",
+      "Dov’è il luogo (CAP/città) e quanto è urgente?",
+      "Puoi inviare una foto o qualche dettaglio? (Opzionale)",
+      "Perfetto — inoltro e ti aggiorno con il prossimo passo."
+    ]
+  },
+  "electrician": {
+    "label": "Elettricista",
+    "samples": [
+      "Ciao! Si tratta di guasto, installazione o wallbox?",
+      "Qual è l’indirizzo e che potenza/interruttore è disponibile? (se noto)",
+      "Quando ti va un appuntamento? Posso proporti slot liberi.",
+      "Ottimo — confermo l’appuntamento e invio i dettagli via SMS/e‑mail."
+    ]
+  }
+};
+
+
+  function setLangScripts(){
+    // Minimal language adaptation based on page <html lang="..."> for the UI text only.
+    const lang = (document.documentElement.lang || 'de').toLowerCase();
+    const ui = {
+      en: { idle:"Idle", running:"Running", start:"Start", reset:"Reset", tip:'Tip: Click “Start”, then watch the transcript update in real-time.' },
+      it: { idle:"Idle", running:"In corso", start:"Start", reset:"Reset", tip:'Tip: premi “Start” e guarda la trascrizione aggiornarsi in tempo reale.' },
+      fr: { idle:"Idle", running:"En cours", start:"Start", reset:"Reset", tip:'Astuce : clique sur “Start” et regarde la transcription se mettre à jour.' },
+      bg: { idle:"Idle", running:"Работи", start:"Start", reset:"Reset", tip:'Съвет: Натисни “Start” и гледай транскрипта в реално време.' },
+      de: { idle:"Idle", running:"Läuft", start:"Start", reset:"Reset", tip:'Suggerimento: „Start“ klicken und den Live‑Transkript verfolgen.' }
+    }[lang] || { idle:"Idle", running:"Running", start:"Start", reset:"Reset", tip:'Tip: Click “Start”.' };
+
+    if (statusText) statusText.textContent = ui.idle;
+    if (startBtn) startBtn.textContent = ui.start;
+    if (resetBtn) resetBtn.textContent = ui.reset;
+    const hint = document.querySelector('.ya-demo__hint');
+    if (hint) hint.textContent = ui.tip;
+
+    // Also swap the demo scripts to the target language (simple but clean)
+    if(lang === 'en'){
+      scripts.restaurant = [
+        ["assistant","Hello and welcome. For how many people would you like to book?"],
+        ["user","For 2 people."],
+        ["assistant","Which date?"],
+        ["user","Tomorrow."],
+        ["assistant","What time?"],
+        ["user","7 PM."],
+        ["assistant","What is your name?"],
+        ["user","Alessandro."],
+        ["assistant","Perfect. Shall I note a phone number (optional)?"],
+        ["user","No, it’s fine."],
+        ["assistant","Great. I’ve captured everything."]
+      ];
+      scripts.handwerk = [
+        ["assistant","Hello! What is your project — bathroom, kitchen, painting, flooring?"],
+        ["user","Flooring, about 60 sqm."],
+        ["assistant","Which city?"],
+        ["user","Wolfsburg."],
+        ["assistant","When should it start?"],
+        ["user","Next week."],
+        ["assistant","Name and phone number for a callback?"],
+        ["user","Alessandro, +49 153 0000000."],
+        ["assistant","Perfect. I’ll route this to the right partner."]
+      ];
+      scripts.elektriker = [
+        ["assistant","Hello! What do you need — EV charger, fuse, emergency, or something else?"],
+        ["user","EV charger installation."],
+        ["assistant","Which city?"],
+        ["user","Braunschweig."],
+        ["assistant","When do you need it?"],
+        ["user","As soon as possible."],
+        ["assistant","Name and phone number?"],
+        ["user","Alessandro, +49 153 0000000."],
+        ["assistant","Thanks. I’ve captured everything and will follow up with a time slot."]
+      ];
+    }
+    if(lang === 'it'){
+      scripts.restaurant = [
+        ["assistant","Ciao e benvenuto. Per quante persone vuoi prenotare?"],
+        ["user","Per 2 persone."],
+        ["assistant","Per quale data?"],
+        ["user","Domani."],
+        ["assistant","A che ora?"],
+        ["user","Alle 19."],
+        ["assistant","Nome?"],
+        ["user","Alessandro."],
+        ["assistant","Perfetto. Vuoi lasciare un numero (facoltativo)?"],
+        ["user","No, va bene."],
+        ["assistant","Ottimo. Ho registrato tutto."]
+      ];
+      scripts.handwerk = [
+        ["assistant","Ciao! Di che progetto si tratta — bagno, cucina, pittura, pavimento?"],
+        ["user","Pavimento, circa 60 mq."],
+        ["assistant","In che città?"],
+        ["user","Wolfsburg."],
+        ["assistant","Quando dovrebbe iniziare?"],
+        ["user","La prossima settimana."],
+        ["assistant","Nome e numero per richiamarti?"],
+        ["user","Alessandro, +49 153 0000000."],
+        ["assistant","Perfetto. Lo inoltro al partner giusto."]
+      ];
+      scripts.elektriker = [
+        ["assistant","Ciao! Serve wallbox, quadro elettrico, urgenza o altro?"],
+        ["user","Installazione wallbox."],
+        ["assistant","In che città?"],
+        ["user","Braunschweig."],
+        ["assistant","Quando?"],
+        ["user","Il prima possibile."],
+        ["assistant","Nome e numero?"],
+        ["user","Alessandro, +49 153 0000000."],
+        ["assistant","Grazie. Ho registrato tutto e ti propongo un appuntamento."]
+      ];
+    }
+    if(lang === 'fr'){
+      scripts.restaurant = [
+        ["assistant","Bonjour et bienvenue. Pour combien de personnes souhaitez-vous réserver ?"],
+        ["user","Pour 2 personnes."],
+        ["assistant","Pour quelle date ?"],
+        ["user","Demain."],
+        ["assistant","À quelle heure ?"],
+        ["user","19h."],
+        ["assistant","Quel est votre nom ?"],
+        ["user","Alessandro."],
+        ["assistant","Parfait. Voulez-vous laisser un numéro (optionnel) ?"],
+        ["user","Non, ça ira."],
+        ["assistant","Très bien. J’ai tout noté."]
+      ];
+      scripts.handwerk = [
+        ["assistant","Bonjour ! Quel est votre projet — salle de bain, cuisine, peinture, sol ?"],
+        ["user","Sol, environ 60 m²."],
+        ["assistant","Dans quelle ville ?"],
+        ["user","Wolfsburg."],
+        ["assistant","Quand souhaitez-vous commencer ?"],
+        ["user","La semaine prochaine."],
+        ["assistant","Nom et numéro pour vous rappeler ?"],
+        ["user","Alessandro, +49 153 0000000."],
+        ["assistant","Parfait. Je transmets au bon partenaire."]
+      ];
+      scripts.elektriker = [
+        ["assistant","Bonjour ! Besoin d’une borne, d’un fusible, d’une urgence ou autre ?"],
+        ["user","Installation borne EV."],
+        ["assistant","Dans quelle ville ?"],
+        ["user","Braunschweig."],
+        ["assistant","Quand ?"],
+        ["user","Dès que possible."],
+        ["assistant","Nom et numéro ?"],
+        ["user","Alessandro, +49 153 0000000."],
+        ["assistant","Merci. J’ai tout noté et je reviens vers vous avec un créneau."]
+      ];
+    }
+    if(lang === 'bg'){
+      scripts.restaurant = [
+        ["assistant","Здравейте и добре дошли. За колко човека желаете резервация?"],
+        ["user","За 2 човека."],
+        ["assistant","За коя дата?"],
+        ["user","Утре."],
+        ["assistant","В колко часа?"],
+        ["user","19:00."],
+        ["assistant","Как е името ви?"],
+        ["user","Alessandro."],
+        ["assistant","Перфектно. Да запиша телефон (по избор)?"],
+        ["user","Не, няма нужда."],
+        ["assistant","Чудесно. Записах всичко."]
+      ];
+      scripts.handwerk = [
+        ["assistant","Здравейте! Какъв е проектът — баня, кухня, боядисване, под?"],
+        ["user","Под, около 60 кв.м."],
+        ["assistant","В кой град?"],
+        ["user","Wolfsburg."],
+        ["assistant","Кога да започне?"],
+        ["user","Следващата седмица."],
+        ["assistant","Име и телефон за връзка?"],
+        ["user","Alessandro, +49 153 0000000."],
+        ["assistant","Перфектно. Насочвам към подходящ партньор."]
+      ];
+      scripts.elektriker = [
+        ["assistant","Здравейте! За какво става въпрос — wallbox, табло, спешно или друго?"],
+        ["user","Монтаж на wallbox."],
+        ["assistant","В кой град?"],
+        ["user","Braunschweig."],
+        ["assistant","Кога?"],
+        ["user","Възможно най-скоро."],
+        ["assistant","Име и телефон?"],
+        ["user","Alessandro, +49 153 0000000."],
+        ["assistant","Благодаря. Записах всичко и ще се върна с предложение за час."]
+      ];
+    }
+  }
+
+  function setActive(simKey){
+    sim = simKey;
+    $$('.ya-pill').forEach(b=>b.classList.toggle('is-active', b.dataset.sim===simKey));
+  }
+  $$('.ya-pill').forEach(b=>b.addEventListener('click', ()=>setActive(b.dataset.sim)));
+
+  function setState(running){
+    if(!statusText || !dot || !wave) return;
+    if(running){
+      dot.classList.add('on');
+      wave.classList.add('is-playing');
+      statusText.textContent = (document.documentElement.lang||'de').toLowerCase()==='de' ? 'Läuft' :
+                               (document.documentElement.lang||'de').toLowerCase()==='bg' ? 'Работи' :
+                               (document.documentElement.lang||'de').toLowerCase()==='fr' ? 'En cours' :
+                               (document.documentElement.lang||'de').toLowerCase()==='it' ? 'In corso' : 'Running';
+    } else {
+      dot.classList.remove('on');
+      wave.classList.remove('is-playing');
+      statusText.textContent = 'Idle';
+    }
+  }
+
+  function addMsg(role, text){
+    const wrap = document.createElement('div');
+    wrap.className = 'ya-msg ' + (role==='user' ? 'ya-msg--user' : 'ya-msg--assistant');
+    wrap.innerHTML = '<div class="ya-badge">'+(role==='user'?'You':'Agent')+'</div><div class="ya-bubble"></div>';
+    wrap.querySelector('.ya-bubble').textContent = text;
+    transcript.appendChild(wrap);
+    transcript.scrollTop = transcript.scrollHeight;
+  }
+
+  function reset(){
+    if(timer) { clearTimeout(timer); timer=null; }
+    transcript.innerHTML = '';
+    const lang = (document.documentElement.lang||'de').toLowerCase();
+    const hello = {
+      de:'Ciao! Scegli un sistema a sinistra e premi Start.',
+      en:'Hello! Pick a system on the left and press Start.',
+      it:'Ciao! Scegli un sistema a sinistra e premi Start.',
+      fr:'Bonjour ! Choisis un système à gauche puis clique sur Start.',
+      bg:'Здравей! Избери система вляво и натисни Start.'
+    }[lang] || 'Hello!';
+    addMsg('assistant', hello);
+    setState(false);
+  }
+
+  function run(){
+    reset();
+    setState(true);
+    const steps = scripts[sim] || [];
+    let i = 0;
+    function next(){
+      if(i >= steps.length){
+        setState(false);
+        return;
+      }
+      const [role, text] = steps[i++];
+      addMsg(role, text);
+      timer = setTimeout(next, role==='assistant' ? 1100 : 900);
+    }
+    timer = setTimeout(next, 550);
+  }
+
+  if(startBtn) startBtn.addEventListener('click', run);
+  if(resetBtn) resetBtn.addEventListener('click', reset);
+
+  // init
+  setActive('restaurant');
+  setLangScripts();
+  reset();
+})();
+</script>
+<script>
+  (function() {
+    try {
+      var current = "it";
+      var links = document.querySelectorAll('.ya-langbar .ya-lang');
+      links.forEach(function(a) {
+        if ((a.getAttribute('data-lang')||'') === current) a.classList.add('is-active');
+        a.addEventListener('click', function() {
+          try { localStorage.setItem('ya_lang', a.getAttribute('data-lang')); } catch(e){}
+        });
+      });
+    } catch(e){}
+  })();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+/* YA_V15_COMBINED_FIX */
+(function(){
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.from((r || document).querySelectorAll(s)); }
+
+  // -------- ROI FIX --------
+  const yaCalls = $("#yaCalls");
+  const yaMiss = $("#yaMiss");
+  const yaValue = $("#yaValue");
+  const yaCloseRate = $("#yaCloseRate");
+  const yaRoiResult = $("#yaRoiResult");
+
+  function euro(n){
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0
+      }).format(n);
+    } catch(e) {
+      return Math.round(n) + " €";
+    }
+  }
+
+  function calcROI(){
+    if(!yaCalls || !yaMiss || !yaValue || !yaCloseRate || !yaRoiResult) return;
+    const calls = Math.max(0, Number(yaCalls.value || 0));
+    const miss = Math.min(100, Math.max(0, Number(yaMiss.value || 0))) / 100;
+    const value = Math.max(0, Number(yaValue.value || 0));
+    const close = Math.min(100, Math.max(0, Number(yaCloseRate.value || 0))) / 100;
+
+    const missedCalls = calls * miss;
+    const wonLeads = missedCalls * close;
+    const revenue = wonLeads * value;
+
+    yaRoiResult.textContent = euro(revenue);
+  }
+
+  [yaCalls, yaMiss, yaValue, yaCloseRate].forEach(function(el){
+    if(el) {
+      el.addEventListener("input", calcROI);
+      el.addEventListener("change", calcROI);
+    }
+  });
+  calcROI();
+
+  // -------- BUILDER FIX --------
+  const yaIndustry = $("#yaIndustry");
+  const yaGoal = $("#yaGoal");
+  const yaTone = $("#yaTone");
+  const yaPromptOut = $("#yaPromptOut");
+  const yaGenPrompt = $("#yaGenPrompt");
+  const yaCopyPrompt = $("#yaCopyPrompt");
+  const yaInts = $("#yaInts");
+  const yaToast = $("#yaToast");
+
+  function showToast(msg){
+    if(!yaToast) return;
+    yaToast.textContent = msg;
+    yaToast.classList.add("on");
+    window.clearTimeout(showToast._t);
+    showToast._t = window.setTimeout(function() {
+      yaToast.classList.remove("on");
+    }, 1400);
+  }
+
+  function buildPrompt(){
+    if(!yaIndustry || !yaGoal || !yaTone || !yaPromptOut) return;
+
+    const industry = yaIndustry.value || "";
+    const goal = yaGoal.value || "";
+    const tone = yaTone.value || "";
+    const integrations = yaInts
+      ? $$("#yaInts input:checked").map(function(i) { return i.value; })
+      : [];
+
+    const lines = [];
+    lines.push("You are a business voice agent for " + industry + ".");
+    lines.push("Goal: " + goal + ".");
+    lines.push("Tone: " + tone + ". Keep answers short. Ask one question at a time.");
+    if(integrations.length) lines.push("Integrations available: " + integrations.join(", ") + ".");
+    lines.push("");
+    lines.push("Rules:");
+    lines.push("- Do NOT end the conversation unless the user clearly wants to stop.");
+    lines.push("- Ask one short question at a time.");
+    lines.push("- Collect missing details step by step.");
+    lines.push("- Confirm the captured details at the end.");
+    lines.push("- Stay professional and natural.");
+    lines.push("");
+    lines.push("Start message:");
+    lines.push("Ciao e benvenuto. Come posso aiutarti oggi?");
+
+    yaPromptOut.value = lines.join("\n");
+    showToast('Prompt pronto');
+  }
+
+  if(yaGenPrompt) yaGenPrompt.addEventListener("click", buildPrompt);
+
+  if(yaCopyPrompt) {
+    yaCopyPrompt.addEventListener("click", async function() {
+      if(!yaPromptOut) return;
+      try {
+        await navigator.clipboard.writeText(yaPromptOut.value || "");
+        showToast('Copiato');
+      } catch(e) {
+        yaPromptOut.focus();
+        yaPromptOut.select();
+        showToast('Seleziona e copia');
+      }
+    });
+  }
+
+  // create initial prompt once so builder never feels broken
+  if(yaPromptOut && !yaPromptOut.value.trim()) buildPrompt();
+})();
+</script>
+
+
+<script>
+/* YA_DASH_V16_SCRIPT */
+(function(){
+  const k1=document.getElementById('yaKpiCalls');
+  const k2=document.getElementById('yaKpiLeads');
+  const k3=document.getElementById('yaKpiAppts');
+  const k4=document.getElementById('yaKpiRev');
+  const spark=document.getElementById('yaSpark');
+  const list=document.getElementById('yaDashList');
+  const btn=document.getElementById('yaDashRefresh');
+  if(!k1||!k2||!k3||!k4||!spark||!list) return;
+
+  function euro(n){
+    try{ return new Intl.NumberFormat(undefined,{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n); }
+    catch(e){ return Math.round(n)+' €'; }
+  }
+  function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function render(){
+    const calls=rnd(18,68);
+    const leads=rnd(Math.max(4,Math.floor(calls*0.18)), Math.max(6,Math.floor(calls*0.42)));
+    const appts=rnd(Math.max(1,Math.floor(leads*0.18)), Math.max(2,Math.floor(leads*0.45)));
+    const rev=rnd(800, 8500) * Math.max(1, appts);
+
+    k1.textContent=calls;
+    k2.textContent=leads;
+    k3.textContent=appts;
+    k4.textContent=euro(rev);
+
+    spark.innerHTML='';
+    for(let i=0;i<12;i++){
+      const h=rnd(10,56);
+      const b=document.createElement('div');
+      b.className='ya-bar';
+      b.style.height=h+'px';
+      spark.appendChild(b);
+    }
+
+    const items=[
+      {t:'Restaurant', s:'Reservation', p:'Qualified'},
+      {t:'Electrician', s:'Emergency', p:'Routed'},
+      {t:'B2B', s:'Lead', p:'Booked'},
+      {t:'Support', s:'FAQ', p:'Resolved'}
+    ];
+    list.innerHTML='';
+    for(let i=0;i<4;i++){
+      const it=items[i];
+      const row=document.createElement('tr');
+      row.innerHTML = '<td><span class="ya-badge">'+it.t+'</span></td><td>'+it.s+'</td><td>'+it.p+'</td>';
+      list.appendChild(row);
+    }
+  }
+
+  if(btn) btn.addEventListener('click', render);
+  render();
+})();
+</script>
+
+
+<script>
+/* YA_V22 Industry Picker */
+(function(){
+  const lang = (document.documentElement.lang || 'de').toLowerCase();
+  const dict = {
+    de:{search:"Gewerbe suchen…",recent:"Zuletzt genutzt",all:"Alle Gewerbe",open:"Gewerbe wählen",clear:"Zurücksetzen"},
+    en:{search:"Search industry…",recent:"Recently used",all:"All industries",open:"Choose industry",clear:"Reset"},
+    it:{search:"Cerca settore…",recent:"Usati di recente",all:"Tutti i settori",open:"Scegli settore",clear:"Reset"},
+    fr:{search:"Rechercher un secteur…",recent:"Récents",all:"Tous les secteurs",open:"Choisir un secteur",clear:"Réinitialiser"},
+    bg:{search:"Търси сектор…",recent:"Последно ползвани",all:"Всички сектори",open:"Избери сектор",clear:"Нулирай"}
+  }[lang] || {search:"Search…",recent:"Recent",all:"All",open:"Choose",clear:"Reset"};
+
+  const select = document.getElementById('yaIndustry');
+  if(!select) return;
+
+  // Build grouped metadata from option labels
+  const groups = {
+    trades: /(Elektr|Sanit|Heizung|Dach|Maler|Fliesen|Tischler|Schreiner|Boden|Garten|Bau|Fenster|Solar|Photovoltaik|Schlüssel|Plumber|HVAC|Roofer|Painter|Tiler|Carpenter|Landscap|Construction|Windows|Locksmith|Idraul|Riscald|Tetto|Imbianch|Piastrel|Falegname|Giardin|Impresa|Finestre|Solare|Fabbro|Électric|Plomb|Chauff|Couv|Peint|Carrel|Menuis|Paysag|Bât|Fenê|Serrur|Елект|ВиК|Климат|Покрив|Боядж|Плоч|Дървод|Озелен|Строит|Прозор|Солар|Ключар)/i,
+    food: /(Restaurant|Pizzeria|Caf|Bar|Catering|Traiteur|Ristorante|Кафе|Ресторант|Кетъринг)/i,
+    health: /(Zahnarzt|Arzt|Physio|Tierarzt|Dentist|Medical|Veterin|Dentista|medico|Fisioter|Vétér|Медицин|Зъбол|Физио|Ветеринар)/i,
+    business: /(Immobil|Steuer|Anwalt|Versicher|Beratung|Real estate|Tax|Law|Insurance|Consult|Commercialista|legale|Assicur|Consul|Immobilier|fiscal|avocats|Assurance|Conseil|Имоти|Данъч|Адвокат|Застрах|Консул)/i,
+    service: /(Autowerk|Reinigung|Umzug|Security|Event|Friseur|Kosmetik|Fitness|Auto repair|Cleaning|Moving|Salon|Beauty|Gym|Officina|Pulizie|Traslochi|Parruc|estet|Palestra|Garage|Nettoyage|Démén|coiffure|beauté|sport|Автосерв|Почиств|Преместв|Сигурност|Събит|Фризьор|Козмет|Фитнес)/i
+  };
+
+  const options = Array.from(select.options).map(o => {
+    let g='service';
+    if(groups.trades.test(o.text)) g='trades';
+    else if(groups.food.test(o.text)) g='food';
+    else if(groups.health.test(o.text)) g='health';
+    else if(groups.business.test(o.text)) g='business';
+    return {value:o.value||o.text, label:o.text, group:g};
+  });
+
+  // Hide original select visually but keep it for existing builder logic
+  select.setAttribute('aria-hidden','true');
+  select.tabIndex = -1;
+  select.style.position='absolute';
+  select.style.opacity='0';
+  select.style.pointerEvents='none';
+  select.style.height='0';
+  select.style.width='0';
+
+  // Insert enhanced UI
+  const wrapper = document.createElement('div');
+  wrapper.className = 'ya-industry-enhanced';
+  wrapper.innerHTML = `
+    <button type="button" class="ya-industry-trigger" id="yaIndustryTrigger">
+      <span id="yaIndustryTriggerLabel">${select.options[select.selectedIndex]?.text || dict.open}</span>
+      <span>⌄</span>
+    </button>
+    <div class="ya-industry-panel" id="yaIndustryPanel">
+      <input class="ya-search" id="yaIndustrySearch" placeholder="${dict.search}" />
+      <div class="ya-chipRow" id="yaIndustryGroups">
+        <button type="button" class="ya-chipBtn active" data-group="all">${dict.all}</button>
+        <button type="button" class="ya-chipBtn" data-group="trades">Trades</button>
+        <button type="button" class="ya-chipBtn" data-group="food">Food</button>
+        <button type="button" class="ya-chipBtn" data-group="health">Health</button>
+        <button type="button" class="ya-chipBtn" data-group="business">Business</button>
+        <button type="button" class="ya-chipBtn" data-group="service">Service</button>
+      </div>
+      <div class="ya-inlineMeta">
+        <div class="ya-muted">${dict.recent}</div>
+        <button type="button" class="ya-linkBtn" id="yaIndustryClear">${dict.clear}</button>
+      </div>
+      <div class="ya-chipRow" id="yaRecentIndustries"></div>
+      <div class="ya-miniDivider"></div>
+      <div class="ya-optionList" id="yaIndustryList"></div>
+    </div>
+  `;
+  select.parentNode.insertBefore(wrapper, select);
+
+  const trigger = document.getElementById('yaIndustryTrigger');
+  const triggerLabel = document.getElementById('yaIndustryTriggerLabel');
+  const panel = document.getElementById('yaIndustryPanel');
+  const search = document.getElementById('yaIndustrySearch');
+  const list = document.getElementById('yaIndustryList');
+  const groupsWrap = document.getElementById('yaIndustryGroups');
+  const recentWrap = document.getElementById('yaRecentIndustries');
+  const clearBtn = document.getElementById('yaIndustryClear');
+
+  let activeGroup = 'all';
+
+  function saveRecent(value){
+    try{
+      const key = 'ya_recent_industries_' + lang;
+      const prev = JSON.parse(localStorage.getItem(key) || '[]').filter(x => x !== value);
+      prev.unshift(value);
+      localStorage.setItem(key, JSON.stringify(prev.slice(0,5)));
+    }catch(e){}
+  }
+
+  function loadRecent(){
+    try{
+      const key = 'ya_recent_industries_' + lang;
+      return JSON.parse(localStorage.getItem(key) || '[]');
+    }catch(e){ return []; }
+  }
+
+  function renderRecent(){
+    const recent = loadRecent();
+    recentWrap.innerHTML = '';
+    recent.forEach(val => {
+      const found = options.find(o => o.value === val || o.label === val);
+      if(!found) return;
+      const b = document.createElement('button');
+      b.type='button';
+      b.className='ya-chipBtn';
+      b.textContent = found.label;
+      b.addEventListener('click', () => choose(found));
+      recentWrap.appendChild(b);
+    });
+  }
+
+  function choose(opt){
+    const idx = options.findIndex(o => o.value === opt.value && o.label === opt.label);
+    if(idx >= 0) {
+      select.selectedIndex = idx;
+      select.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+    triggerLabel.textContent = opt.label;
+    panel.classList.remove('open');
+    saveRecent(opt.value);
+    renderRecent();
+  }
+
+  function renderList(){
+    const q = (search.value || '').trim().toLowerCase();
+    list.innerHTML = '';
+    options
+      .filter(o => activeGroup === 'all' ? true : o.group === activeGroup)
+      .filter(o => !q || o.label.toLowerCase().includes(q))
+      .forEach(o => {
+        const btn = document.createElement('button');
+        btn.type='button';
+        btn.className='ya-optionBtn';
+        btn.innerHTML = `<span>${o.label}</span><small>${o.group}</small>`;
+        btn.addEventListener('click', () => choose(o));
+        list.appendChild(btn);
+      });
+  }
+
+  trigger.addEventListener('click', () => {
+    panel.classList.toggle('open');
+    if(panel.classList.contains('open')){
+      search.focus();
+      renderList();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if(!wrapper.contains(e.target)) panel.classList.remove('open');
+  });
+
+  search.addEventListener('input', renderList);
+
+  groupsWrap.addEventListener('click', (e) => {
+    const btn = e.target.closest('.ya-chipBtn');
+    if(!btn) return;
+    activeGroup = btn.dataset.group || 'all';
+    Array.from(groupsWrap.querySelectorAll('.ya-chipBtn')).forEach(b => b.classList.toggle('active', b===btn));
+    renderList();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    search.value = '';
+    activeGroup = 'all';
+    Array.from(groupsWrap.querySelectorAll('.ya-chipBtn')).forEach((b,i) => b.classList.toggle('active', i===0));
+    renderList();
+  });
+
+  // sync label if original select changes elsewhere
+  select.addEventListener('change', () => {
+    triggerLabel.textContent = select.options[select.selectedIndex]?.text || dict.open;
+  });
+
+  renderRecent();
+  renderList();
+})();
+</script>
+
+
+<script>
+/* YA_V23_LIVE_PREVIEW */
+(function(){
+  const lang = (document.documentElement.lang || 'de').toLowerCase();
+  const dictMap = {"de": {"title": "AI Live Preview", "subtitle": "Teste direkt im Builder, wie dein Agent auf Eingaben reagieren würde.", "placeholder": "Schreibe eine Nachricht…", "send": "Senden", "reset": "Reset", "agent": "Agent", "user": "Du", "empty": "Starte den Prompt-Generator und teste danach den Agent direkt hier.", "typing": "denkt…", "welcome": "Guten Tag und willkommen. Wie kann ich Ihnen helfen?"}, "en": {"title": "AI Live Preview", "subtitle": "Test directly in the builder how your agent would respond.", "placeholder": "Type a message…", "send": "Send", "reset": "Reset", "agent": "Agent", "user": "You", "empty": "Generate a prompt first, then test the agent here.", "typing": "thinking…", "welcome": "Hello and welcome. How can I help you?"}, "it": {"title": "AI Live Preview", "subtitle": "Testa direttamente nel builder come risponderebbe il tuo agente.", "placeholder": "Scrivi un messaggio…", "send": "Invia", "reset": "Reset", "agent": "Agent", "user": "Tu", "empty": "Genera prima un prompt, poi testa qui l’agente.", "typing": "sta pensando…", "welcome": "Ciao e benvenuto. Come posso aiutarti?"}, "fr": {"title": "AI Live Preview", "subtitle": "Teste directement dans le builder comment ton agent répondrait.", "placeholder": "Écris un message…", "send": "Envoyer", "reset": "Reset", "agent": "Agent", "user": "Toi", "empty": "Génère d’abord un prompt, puis teste l’agent ici.", "typing": "réfléchit…", "welcome": "Bonjour et bienvenue. Comment puis-je vous aider ?"}, "bg": {"title": "AI Live Preview", "subtitle": "Тествай директно в builder-а как би отговарял агентът.", "placeholder": "Напиши съобщение…", "send": "Изпрати", "reset": "Reset", "agent": "Agent", "user": "Ти", "empty": "Първо генерирай prompt, после тествай агента тук.", "typing": "мисли…", "welcome": "Здравейте и добре дошли. С какво мога да помогна?"}};
+  const dict = dictMap[lang] || dictMap.de;
+
+  const promptOut = document.getElementById('yaPromptOut');
+  if(!promptOut) return;
+
+  if(!document.getElementById('yaPreviewChat')){
+    const outWrap = promptOut.closest('.ya-out') || promptOut.parentElement;
+    if(outWrap){
+      const card = document.createElement('div');
+      card.className = 'ya-previewCard';
+      card.innerHTML = `
+        <div class="ya-previewHead">
+          <div>
+            <h3>${dict.title}</h3>
+            <div class="ya-previewSub">${dict.subtitle}</div>
+          </div>
+          <div class="ya-previewMeta">Builder demo</div>
+        </div>
+        <div class="ya-previewChat" id="yaPreviewChat"></div>
+        <div class="ya-previewInputRow">
+          <input class="ya-previewInput" id="yaPreviewInput" placeholder="${dict.placeholder}" />
+          <button class="ya-btn ya-btn--primary" id="yaPreviewSend">${dict.send}</button>
+          <button class="ya-btn ya-btn--ghost" id="yaPreviewReset">${dict.reset}</button>
+        </div>
+      `;
+      outWrap.appendChild(card);
+    }
+  }
+
+  const chat = document.getElementById('yaPreviewChat');
+  const input = document.getElementById('yaPreviewInput');
+  const sendBtn = document.getElementById('yaPreviewSend');
+  const resetBtn = document.getElementById('yaPreviewReset');
+  const industry = document.getElementById('yaIndustry');
+  const goal = document.getElementById('yaGoal');
+  const tone = document.getElementById('yaTone');
+  const intsWrap = document.getElementById('yaInts');
+  if(!chat || !input || !sendBtn || !resetBtn) return;
+
+  let history = [];
+
+  function addMsg(role, text){
+    const row = document.createElement('div');
+    row.className = 'ya-previewMsg ' + (role === 'user' ? 'user' : 'agent');
+    row.innerHTML = `<div class="ya-previewTag">${role === 'user' ? dict.user : dict.agent}</div><div class="ya-previewBubble"></div>`;
+    row.querySelector('.ya-previewBubble').textContent = text;
+    chat.appendChild(row);
+    chat.scrollTop = chat.scrollHeight;
+    history.push({ role, content: text });
+  }
+
+  function resetChat(){
+    chat.innerHTML = '';
+    history = [];
+    const start = (promptOut.value || '').trim() ? dict.welcome : dict.empty;
+    addMsg('agent', start);
+  }
+
+  function selectedIntegrations(){
+    if(!intsWrap) return [];
+    return Array.from(intsWrap.querySelectorAll('input:checked')).map(i => i.value);
+  }
+
+  function inferReply(userText){
+    const msg = (userText || '').toLowerCase();
+    const chosenIndustry = (industry?.value || '').toLowerCase();
+    const chosenGoal = (goal?.value || '').toLowerCase();
+    const chosenTone = (tone?.value || '').toLowerCase();
+    const integrations = selectedIntegrations();
+
+    const makeTone = (text) => {
+      if(chosenTone.includes('kurz') || chosenTone.includes('short') || chosenTone.includes('très') || chosenTone.includes('molto') || chosenTone.includes('много')){
+        return text;
+      }
+      if(chosenTone.includes('premium')){
+        return text + ' ' + (lang === 'de' ? 'Ich begleite Sie gern Schritt für Schritt.' :
+                             lang === 'en' ? 'I’m happy to guide you step by step.' :
+                             lang === 'it' ? 'Ti guido volentieri passo dopo passo.' :
+                             lang === 'fr' ? 'Je te guide volontiers pas à pas.' :
+                             'С удоволствие ще те водя стъпка по стъпка.');
+      }
+      return text;
+    };
+
+    const isRestaurant = /restaurant|pizzeria|café|cafe|bar|catering|ресторант|кафе/.test(chosenIndustry);
+    const isElectric = /elektr|electric|électric|elettric|електр/.test(chosenIndustry);
+    const isMedical = /zahnarzt|arzt|dentist|medical|dent|médic|медицин|зъбол/.test(chosenIndustry);
+    const isRealEstate = /immobil|real estate|immobilier|immobili|имоти/.test(chosenIndustry);
+    const isTrades = /plumb|roof|hvac|maler|handwerk|artigian|artisan|майстор|стро|вик|sanit|heizung|dach/.test(chosenIndustry);
+
+    if(isRestaurant || /reserv|book|table|tisch|reservation|rezerv|резерв/.test(msg)){
+      return makeTone(
+        lang === 'de' ? 'Gerne. Für wie viele Personen möchten Sie reservieren?' :
+        lang === 'en' ? 'Sure. For how many people would you like to book?' :
+        lang === 'it' ? 'Volentieri. Per quante persone vuoi prenotare?' :
+        lang === 'fr' ? 'Avec plaisir. Pour combien de personnes souhaitez-vous réserver ?' :
+        'Разбира се. За колко човека искате резервация?'
+      );
+    }
+    if(isElectric || /wallbox|fuse|sicherung|элект|electric|power|strom/.test(msg)){
+      return makeTone(
+        lang === 'de' ? 'Verstanden. Worum geht es genau – Wallbox, Sicherung, Notfall oder etwas anderes?' :
+        lang === 'en' ? 'Understood. What exactly do you need — EV charger, fuse, emergency, or something else?' :
+        lang === 'it' ? 'Capito. Di cosa si tratta esattamente — wallbox, quadro, urgenza o altro?' :
+        lang === 'fr' ? 'Compris. De quoi s’agit-il exactement — borne, fusible, urgence ou autre ?' :
+        'Разбрах. За какво точно става дума — wallbox, табло, спешно или друго?'
+      );
+    }
+    if(isMedical || /appointment|termin|rdv|appunt|час/.test(msg)){
+      return makeTone(
+        lang === 'de' ? 'Natürlich. Sind Sie bereits Bestandskunde oder ist es Ihr erster Termin?' :
+        lang === 'en' ? 'Of course. Are you already an existing patient/customer, or is this your first appointment?' :
+        lang === 'it' ? 'Certo. Sei già paziente/cliente oppure è il primo appuntamento?' :
+        lang === 'fr' ? 'Bien sûr. Êtes-vous déjà patient/client ou s’agit-il d’un premier rendez-vous ?' :
+        'Разбира се. Вече сте пациент/клиент или това е първи час?'
+      );
+    }
+    if(isRealEstate || /viewing|besichtigung|visit|visite|immobil/.test(msg)){
+      return makeTone(
+        lang === 'de' ? 'Gern. Geht es um eine neue Anfrage, eine Besichtigung oder ein konkretes Objekt?' :
+        lang === 'en' ? 'Sure. Is this a new inquiry, a viewing, or a specific property?' :
+        lang === 'it' ? 'Volentieri. Si tratta di una nuova richiesta, una visita o un immobile specifico?' :
+        lang === 'fr' ? 'D’accord. S’agit-il d’une nouvelle demande, d’une visite ou d’un bien précis ?' :
+        'Разбира се. Става ли дума за ново запитване, оглед или конкретен имот?'
+      );
+    }
+    if(isTrades || /angebot|quote|project|projekt|bath|kitchen|bad|küche|ремонт/.test(msg)){
+      return makeTone(
+        lang === 'de' ? 'Klar. Um welches Projekt geht es genau und in welcher Stadt ist der Einsatz?' :
+        lang === 'en' ? 'Sure. What exactly is the project, and in which city is the job located?' :
+        lang === 'it' ? 'Chiaro. Di che progetto si tratta esattamente e in quale città si trova?' :
+        lang === 'fr' ? 'Très bien. De quel projet s’agit-il exactement et dans quelle ville se trouve-t-il ?' :
+        'Разбира се. За какъв проект става дума и в кой град е обектът?'
+      );
+    }
+    if(/lead|qualif|квалиф/.test(chosenGoal)){
+      return makeTone(
+        lang === 'de' ? 'Damit ich Sie richtig einordnen kann: Worum geht es konkret und wie dringend ist das Anliegen?' :
+        lang === 'en' ? 'So I can qualify this correctly: what is the exact request, and how urgent is it?' :
+        lang === 'it' ? 'Per qualificare correttamente: qual è la richiesta esatta e quanto è urgente?' :
+        lang === 'fr' ? 'Pour bien qualifier la demande : quel est le besoin exact et quel est le niveau d’urgence ?' :
+        'За да квалифицирам правилно: каква е точната нужда и колко е спешно?'
+      );
+    }
+    if(/faq|support|kund|service|поддр/.test(chosenGoal + ' ' + msg)){
+      let suffix = '';
+      if(integrations.length){
+        suffix = lang === 'de' ? ' Ich kann die Daten anschließend ins System geben.' :
+                 lang === 'en' ? ' I can route the data into the system afterwards.' :
+                 lang === 'it' ? ' Posso poi inviare i dati nel sistema.' :
+                 lang === 'fr' ? ' Je peux ensuite envoyer les données dans le système.' :
+                 ' След това мога да подам данните към системата.';
+      }
+      return makeTone(
+        (lang === 'de' ? 'Gern. Bitte schildern Sie mir Ihr Anliegen in einem Satz.' :
+         lang === 'en' ? 'Sure. Please describe your request in one sentence.' :
+         lang === 'it' ? 'Certo. Descrivi la tua richiesta in una frase.' :
+         lang === 'fr' ? 'Bien sûr. Décris-moi ta demande en une phrase.' :
+         'Разбира се. Опиши ми нуждата си с едно изречение.') + suffix
+      );
+    }
+    return makeTone(
+      lang === 'de' ? 'Verstanden. Damit ich Ihnen direkt helfen kann: Was ist das genaue Ziel Ihres Anrufs?' :
+      lang === 'en' ? 'Understood. So I can help right away: what is the exact goal of your call?' :
+      lang === 'it' ? 'Capito. Per aiutarti subito: qual è l’obiettivo esatto della chiamata?' :
+      lang === 'fr' ? 'Compris. Pour aider tout de suite : quel est l’objectif exact de votre appel ?' :
+      'Разбрах. За да помогна веднага: каква е точната цел на обаждането?'
+    );
+  }
+
+  async function send(){
+    const value = (input.value || '').trim();
+    if(!value) return;
+    addMsg('user', value);
+    input.value = '';
+
+    const typing = document.createElement('div');
+    typing.className = 'ya-previewMsg';
+    typing.id = 'yaPreviewTyping';
+    typing.innerHTML = `<div class="ya-previewTag">${dict.agent}</div><div class="ya-previewBubble">${dict.typing}</div>`;
+    chat.appendChild(typing);
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+      let reply = inferReply(value);
+      if (window.YOURAGENT_AI && typeof window.YOURAGENT_AI.sendMessage === 'function' && window.YOURAGENT_AI.isLive()) {
+        const data = await window.YOURAGENT_AI.sendMessage({
+          message: value,
+          history: history.slice(-8),
+          page: window.location.pathname,
+          context: {
+            builderPrompt: (promptOut.value || '').trim(),
+            industry: industry?.value || '',
+            goal: goal?.value || '',
+            tone: tone?.value || '',
+            integrations: selectedIntegrations()
+          }
+        });
+        if (data && typeof data.reply === 'string' && data.reply.trim()) {
+          reply = data.reply.trim();
+        }
+      }
+      const t = document.getElementById('yaPreviewTyping');
+      if(t) t.remove();
+      addMsg('agent', reply);
+    } catch (err) {
+      console.error(err);
+      const t = document.getElementById('yaPreviewTyping');
+      if(t) t.remove();
+      addMsg('agent', inferReply(value));
+      window.YOURAGENT_AI?.toast?.((window.YOURAGENT_CONFIG?.mode === 'live') ? (lang === 'de' ? 'Live API nicht erreichbar. Demo-Fallback aktiv.' : lang === 'en' ? 'Live API unavailable. Demo fallback active.' : lang === 'it' ? 'API live non raggiungibile. Fallback demo attivo.' : lang === 'fr' ? 'API live indisponible. Fallback démo actif.' : 'Live API не е достъпно. Активиран е demo fallback.') : (lang === 'de' ? 'Live API noch nicht verbunden. Demo-Fallback aktiv.' : lang === 'en' ? 'Live API not connected yet. Demo fallback active.' : lang === 'it' ? 'API live non ancora collegata. Fallback demo attivo.' : lang === 'fr' ? 'API live pas encore connectée. Fallback démo actif.' : 'Live API още не е свързано. Активиран е demo fallback.'));
+    }
+  }
+
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', (e) => { if(e.key === 'Enter') send(); });
+  resetBtn.addEventListener('click', resetChat);
+  resetChat();
+})();
+</script>
+
+
+
+
+
+
+
+
+<script>
+/* YA_V26_HARDFIX */
+(function(){
+  // freeze motion hard
+  function freeze(){
+    document.body.classList.add('ya-theme-static');
+    document.querySelectorAll('[data-scroll],[data-parallax],.parallax,.scroll-fx,.hero-bg,.hero-visual,.bg-orb,.gradient-bg,.theme-blob,.theme-glow,.theme-noise,.ya-orb,.ya-orbGlow').forEach(function(el){
+      el.style.animation='none';
+      el.style.transition='none';
+      el.style.transform='none';
+      el.style.translate='none';
+      el.style.backgroundAttachment='scroll';
+    });
+  }
+  freeze();
+  window.addEventListener('scroll', freeze, {passive:true});
+
+  const transcript = document.getElementById('yaCallTranscript');
+  const input = document.getElementById('yaCallInput');
+  const send = document.getElementById('yaCallSend');
+  const start = document.getElementById('yaCallStart');
+  const end = document.getElementById('yaCallEnd');
+  const status = document.getElementById('yaCallStatus');
+  const dot = document.getElementById('yaCallDot');
+  const scenario = document.getElementById('yaScenarioNative') || document.getElementById('yaCallScenario');
+  if(!transcript || !input || !send) return;
+
+  let active = false;
+  let step = 0;
+
+  function setIdle(){
+    if(status) status.textContent = 'Pronto';
+    if(dot) dot.classList.remove('on');
+  }
+  function setActive(){
+    if(dot) dot.classList.add('on');
+  }
+  function addLine(who, text){
+    const row = document.createElement('div');
+    row.className = 'ya-line ' + (who === 'user' ? 'user' : 'agent');
+    row.innerHTML = '<div class="tag">'+(who === 'user' ? 'Tu' : 'Agent')+'</div><div class="bubble"></div>';
+    row.querySelector('.bubble').textContent = text;
+    transcript.appendChild(row);
+    transcript.scrollTop = transcript.scrollHeight;
+  }
+  function currentQuestions(){
+    const sc = (scenario && scenario.value) || 'restaurant';
+    if(sc === 'electrician') return ["Di cosa si tratta esattamente — wallbox, quadro, urgenza o altro?", "In che città?", "Quando?", "Nome e telefono?"];
+    if(sc === 'trades') return ["Di che progetto si tratta esattamente?", "In che città?", "Quando dovrebbe iniziare?", "Nome e telefono?"];
+    return ["Per quante persone vuoi prenotare?", "Per quale data?", "A che ora?", "Come ti chiami?", "Nome e telefono (opzionale)?"];
+  }
+  function startFlow(){
+    active = true;
+    step = 0;
+    transcript.innerHTML = '';
+    setActive();
+    addLine('agent', 'Ciao! Come posso aiutarti?');
+  }
+  function stopFlow(){
+    addLine('agent', 'Perfetto. Ho registrato tutto.');
+    active = false;
+    setIdle();
+  }
+  function respondFromText(val){
+    if(!val) return;
+    if(!active) startFlow();
+    addLine('user', val);
+    const low = val.toLowerCase();
+    if(low.includes('stop') || low.includes('bye') || low.includes('beenden') || low.includes('tsch') || low.includes('auf wieder')) {
+      stopFlow(); input.value=''; return;
+    }
+    const qs = currentQuestions();
+    const reply = step < qs.length ? qs[step] : 'Perfetto. Ho registrato tutto.';
+    step += 1;
+    window.setTimeout(function(){ addLine('agent', reply); }, 180);
+    input.value='';
+  }
+
+  // hard replace elements to kill previous listeners
+  const newSend = send.cloneNode(true);
+  send.parentNode.replaceChild(newSend, send);
+
+  let newStart = start;
+  if(start) {
+    newStart = start.cloneNode(true);
+    start.parentNode.replaceChild(newStart, start);
+  }
+
+  let newEnd = end;
+  if(end) {
+    newEnd = end.cloneNode(true);
+    end.parentNode.replaceChild(newEnd, end);
+  }
+
+  newSend.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    respondFromText((input.value||'').trim());
+  });
+
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      e.stopPropagation();
+      respondFromText((input.value||'').trim());
+    }
+  });
+
+  if(newStart) newStart.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    startFlow();
+  });
+
+  if(newEnd) newEnd.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    stopFlow();
+  });
+
+  setIdle();
+})();
+</script>
+
+
+<script>
+/* YA_V28_THEME_TRIPLE_CHECK */
+(function(){
+  function killThemeMotion(){
+    try{
+      document.documentElement.style.backgroundAttachment='scroll';
+      document.body.style.backgroundAttachment='scroll';
+      document.body.style.transform='none';
+      document.querySelectorAll('*').forEach(function(el){
+        const cn = (el.className || '').toString();
+        if(/blob|glow|noise|parallax|hero-bg|hero-visual|gradient-bg|bg-orb|glass|blur/i.test(cn)){
+          el.style.backdropFilter='none';
+          el.style.webkitBackdropFilter='none';
+          el.style.animation='none';
+          el.style.transition='none';
+          el.style.transform='none';
+          el.style.filter='none';
+          if(/blob|glow|noise|parallax|hero-bg|hero-visual|gradient-bg|bg-orb/i.test(cn)){
+            el.style.display='none';
+            el.style.opacity='0';
+          }
+        }
+      });
+    }catch(e){}
+  }
+  killThemeMotion();
+  window.addEventListener('scroll', killThemeMotion, {passive:true});
+  window.addEventListener('resize', killThemeMotion);
+})();
+</script>
+
+
+<script>
+/* YA_V29_THEME_AND_CONVERSION */
+(function(){
+  // Final theme kill-switch
+  function killHeroOverlay(){
+    document.querySelectorAll('.hero,.heroSection,.hero-wrap,[class*="hero"],.hero-overlay,.hero-mask,.section-overlay,.bg-overlay,[class*="hero-overlay"],[class*="hero-mask"],[class*="section-overlay"],[class*="bg-overlay"]').forEach(function(el){
+      el.style.backgroundImage='none';
+      el.style.backdropFilter='none';
+      el.style.webkitBackdropFilter='none';
+    });
+  }
+  killHeroOverlay();
+  window.addEventListener('scroll', killHeroOverlay, {passive:true});
+
+  // Add annual upside below ROI result if ROI exists
+  const roi = document.getElementById('yaRoiResult');
+  if(roi && !document.getElementById('yaKpiYear')){
+    const y = document.createElement('div');
+    y.id = 'yaKpiYear';
+    y.className = 'ya-kpiYear';
+    roi.parentNode.appendChild(y);
+
+    function parseEuro(str){
+      const n = (str || '').replace(/[^0-9.,-]/g,'').replace(/\./g,'').replace(',', '.');
+      return Number(n) || 0;
+    }
+    function updateYear(){
+      const val = parseEuro(roi.textContent);
+      y.textContent = "Potenziale extra: " + new Intl.NumberFormat(undefined,{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(val*12) + " • all’anno";
+    }
+    const obs = new MutationObserver(updateYear);
+    obs.observe(roi, {childList:true, characterData:true, subtree:true});
+    updateYear();
+  }
+
+  // Add live wave to real call block if present
+  const callPhone = document.querySelector('.ya-callPhone');
+  if(callPhone && !document.getElementById('yaVoiceWave')){
+    const wave = document.createElement('div');
+    wave.className = 'ya-wave';
+    wave.id = 'yaVoiceWave';
+    wave.innerHTML = '<span></span><span></span><span></span><span></span><span></span><span></span><span></span>';
+    const body = callPhone.querySelector('.ya-callBody');
+    if(body) body.appendChild(wave);
+  }
+
+  // Upgrade AI preview headline if present
+  const h3 = Array.from(document.querySelectorAll('.ya-previewHead h3')).find(el => /AI Live Preview|Preview/i.test(el.textContent||''));
+  if(h3) h3.textContent = "AI Reply Preview";
+})();
+</script>
+
+<script>
+/* YA_V30 */
+(function(){
+ document.querySelectorAll('.ya-faqQ').forEach(function(btn){
+   btn.addEventListener('click', function(){
+     var item = btn.closest('.ya-faqItem');
+     if(item) item.classList.toggle('open');
+   });
+ });
+})();
+</script>  <script src="../assets/youragent-live-fix.js"></script>
+
+<script type="module" src="../assets/youragent-vapi.js"></script>
+
+<script src="../assets/vapi-hardfix.js"></script>
+</body>
+</html>

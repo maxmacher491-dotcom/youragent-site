@@ -1,0 +1,5 @@
+[functions.youragent-chat]
+verify_jwt = false
+
+[functions.rapid-responder]
+verify_jwt = false
